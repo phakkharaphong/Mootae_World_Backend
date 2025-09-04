@@ -89,7 +89,7 @@ async def delete_user_by_id(
         raise HTTPException(status_code=200, detail=f"Delete User Success: {user.UserName}")
 
 @app.get(
-        "/location/province/", 
+        "/location/province", 
         response_model=schemas_location.ProvinceResponse,
         tags=["Location"],
         summary="Find All Province"
