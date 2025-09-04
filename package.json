@@ -1,0 +1,5 @@
+{
+    "scripts": {
+        "Run Project": "python -m uvicorn main:app --reload"
+    }
+}
