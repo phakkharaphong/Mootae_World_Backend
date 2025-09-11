@@ -4,9 +4,14 @@ from fastapi import FastAPI,Depends, HTTPException
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
+from mtw_role import crud_role
+from mtw_orders_type import crud_orders_type
 from Location import crud_location
 import user.schema as schemas
+import mtw_orders_type.schema_order_type as schema_order_type
+import mtw_role.schema_role as schema_role
 import Location.schema_location as schemas_location
+import database_config as db_con
 
 app = FastAPI(
     title="Mootae World API Doccument",
@@ -34,19 +39,21 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+
+
 #ในกรณีถ้าต้องการดึงข้อมูลหลายเรคคอร์ดให้ใช้ List
 @app.get(
         "/users", 
-        response_model=list[schemas.UserSchema] ,
+        response_model=schemas.UsersResponse ,
         tags=["User"],
         summary="Find All User"
         )
 def get_users(
-    skip:int=1, 
+    page:int=1, 
     limit:int=10, 
     db:Session=Depends(get_db)
     ):
-    users = crud.get_users(db,skip=skip,limit=limit)
+    users = crud.get_users(db,page=page,limit=limit)
     return users
 
 @app.get(
@@ -56,7 +63,7 @@ def get_users(
         summary="Get User By ID"
         )
 async def get_userbyid(
-    user_id: int, 
+    user_id: str, 
     db:Session=Depends(get_db)
     ):
     user = crud.getById(db,user_id=user_id)
@@ -79,14 +86,34 @@ async def create_user(user:schemas.UserCreate, db:Session=Depends(get_db)):
     tags=["User"]
 )
 async def delete_user_by_id(
-    user_id: int,
+    user_id: str,
     db: Session = Depends(get_db)
 ):
     user = crud.deleteById(db=db, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     else:
-        raise HTTPException(status_code=200, detail=f"Delete User Success: {user.UserName}")
+        raise HTTPException(status_code=200, detail=f"Delete User Success: {user.id}")
+
+
+@app.get(
+        "/role", 
+        response_model=schema_role.RoleResponse ,
+        tags=["Role"],
+        summary="Find All Role"
+        )
+def get_role(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+    ):
+    role = crud_role.FindAllRole(db,page=page,limit=limit)
+    return role
+@app.post("/role/create",response_model=schema_role.create_mtw_role ,tags=["Role"])
+async def create_role(role:schema_role.create_mtw_role, db:Session=Depends(get_db)):
+    return crud_role.create_user(db=db,role=role)
+
+
 
 @app.get(
         "/location/province", 
@@ -129,4 +156,22 @@ def FindAllZone(
     ):
     return crud_location.FindAllZone(db,page,limit)
 
+
+@app.get(
+        "/order_types", 
+        response_model=schema_order_type.order_type_Response ,
+        tags=["Order Type"],
+        summary="Find All Order Type"
+        )
+async def getall_Oder_Type(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+    ):
+    rders_type = crud_orders_type.FindAll(db,page=page,limit=limit)
+    return rders_type
+
+@app.post("/order_types/create",response_model=schema_order_type.order_type_create ,tags=["Order Type"])
+async def create_order_type(order_type: schema_order_type.order_type_create, db: Session = Depends(get_db)):
+    return crud_orders_type.Create(db=db, order_type=order_type)
 

@@ -1,60 +1,116 @@
 from pydantic import BaseModel, Field
-
+from typing import List
+from datetime import datetime
 class UserSchema(BaseModel):
-    UserID: int = Field(
+    id: str = Field(
         description="UID User",
-        default="1"
+        default="EXasfew565d2"
     )
-    UserName: str |None = Field(
+    username: str |None = Field(
         description="Username User",
         default="Admin01"
     )
-    FullName: str |None  = Field(
-        description="Fullname user Frist Name and Last Name",
-        default="Phakkharaphong Charoenphon"
+    f_name: str |None  = Field(
+        description="Frist Name",
+        default="Phakkharaphong"
     )
-    uid:str |None = Field(
-        description="UID User"
+    l_name: str |None  = Field(
+        description="Last Name",
+        default="Charoenphon"
     )
-    
-    Telephone: str | None = None
-    MobilePhone: str | None = None
-    IsSuperUser: int | None = None
-    IsActived: int | None = None
+    phone:str |None = Field(
+        description="number phone",
+        default="0876197982"
+    )
+    img_profile:str |None = Field(
+        description="Profile",
+        default="QgIBYWLvHfSJNZTVj8gC29zxv91lb8jKKP8pjirq7yVMg81Isa"
+    )
+    address:str |None = Field(
+        description="address",
+        default="test address"
+    )
+    following:int |None = Field(
+        description="following"
+    )
+    keep_following:int |None = Field(
+        description="keep_following"
+    )
+    role_id: str = Field(
+        description="role User",
+        default="EXasfew565d2"
+    ) 
+    is_active: bool | None = None
 
     model_config = {
        "from_attributes": True   # ✅ Pydantic v2
     }
     
 class UserCreate(BaseModel):
-    UserID: int
-    UserName: str | None = Field(
+    username: str |None = Field(
         description="Username User",
-        default="admin01"
+        default="Admin01"
     )
-    Password: str | None = Field(
-        description="Password User",
-        default="Phak#150845"
+    password: str | None = Field(
+        description="Username User",
+        default="test"
     )
-    FullName: str | None = Field(
-        description="FullName User",
-        default="Phakkharaphong Charoenphon"
+    f_name: str |None  = Field(
+        description="Frist Name",
+        default="Phakkharaphong"
     )
-    Telephone: str | None = Field(
-        description="FullName User",
-        default="094395615"
+    l_name: str |None  = Field(
+        description="Last Name",
+        default="Charoenphon"
     )
-    MobilePhone: str | None = Field(
-        description="FullName User",
-        default="0876197982"
+    phone:str |None = Field(
+        description="number phone"
     )
-    uid: str = Field(
-        description="Nano Uis",
-        default="W3KBuvoD"
+    img_profile:str |None = Field(
+        description="Profile"
     )
-    IsSuperUser: int 
-    IsActived: int
+    address:str |None = Field(
+        description="address"
+    )
+    following:int |None = Field(
+        description="following"
+    )
+    keep_following:int |None = Field(
+        description="keep_following"
+    )
+    role_id: str = Field(
+        description="role User",
+        default="EXasfew565d2"
+    ) 
+    is_active: bool | None = None
+    created_at: datetime = Field(
+        description="Created time",
+        default_factory=datetime.utcnow   # ✅ ใช้ UTC
+    )
 
     model_config = {
        "from_attributes": True   # ✅ Pydantic v2
     }
+
+class UserSchemaModel(BaseModel):
+    id: str
+    username: str
+    f_name: str 
+    l_name: str 
+    phone:str 
+    img_profile:str 
+    address:str 
+    following:int
+    keep_following:int 
+    role_id: str
+    is_active: bool
+
+    model_config = {
+       "from_attributes": True   # ✅ Pydantic v2
+    }
+class UsersResponse(BaseModel):
+    page: int
+    limit: int
+    total: int
+    message: str
+    Data: List[UserSchemaModel]
