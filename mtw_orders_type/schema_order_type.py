@@ -11,6 +11,10 @@ class mtw_order_type(BaseModel):
         description="type_name name",
         default="Collection 1"
     )
+    price: float |None = Field(
+        description="price",
+        default=580.00
+    )
     is_active: bool | None = None
     created_at: datetime| None = Field(
         description="Created time",
@@ -32,6 +36,10 @@ class mtw_order_type_join(BaseModel):
         description="order_type id",
         default="EXasfew565d2"
     )
+    price: float |None = Field(
+        description="price",
+        default=580.00
+    )
     type_name: str |None = Field(
         description="type_name name",
         default="Collection 1"
@@ -45,6 +53,10 @@ class order_type_create(BaseModel):
         description="type_name name",
         default="Collection 1"
     )
+    price: float |None = Field(
+        description="price",
+        default=580.00
+    )
     is_active: bool | None = Field(
         description="Active status",
         default=True
@@ -55,6 +67,32 @@ class order_type_create(BaseModel):
     )
     created_by: str = Field(
         description="created by",
+        default="Admin"
+    )
+
+    model_config = {
+       "from_attributes": True
+    }
+
+class order_type_update(BaseModel):
+    type_name: str | None = Field(
+        description="type_name name",
+        default="Collection 1"
+    )
+    price: float |None = Field(
+        description="price",
+        default=580.00
+    )
+    is_active: bool | None = Field(
+        description="Active status",
+        default=True
+    )
+    updated_at: datetime = Field(
+        description="updated time",
+        default_factory=datetime.now  # ✅ correct
+    )
+    updated_by: str = Field(
+        description="updated by",
         default="Admin"
     )
 

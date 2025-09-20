@@ -1,3 +1,7 @@
+from flask import Flask
+from flask.cli import FlaskGroup
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -18,5 +22,3 @@ if engine:
 SessionLocal = sessionmaker(autocommit=False,autoflush=False, bind=engine)
 
 Base = declarative_base()
-
-    

@@ -1,5 +1,10 @@
 {
     "scripts": {
-        "Run Project": "python -m uvicorn main:app --reload"
+        "Run Project": "python -m uvicorn main:app --reload",
+        "Create Forder migrations": "alembic init migrations",
+        "Upgrade Data": "alembic upgrade head",
+        "Downgrade base Data Version 1": "alembic downgrade base ",
+        "version": "alembic current"
+
     }
 }

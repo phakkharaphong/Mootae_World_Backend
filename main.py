@@ -1,6 +1,10 @@
+from shlex import quote
 from typing import Annotated, Union
 from enum import Enum
 from fastapi import FastAPI,Depends, HTTPException
+from flask import Flask
+from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
@@ -16,6 +20,9 @@ import mtw_orders.schema_orders as schema_order
 from mtw_orders import crud_order
 from utils import response
 from mtw_promotion import schema_promotion, crud_promotion
+from mtw_slide_new import schema_slide_new, crud_slide_new
+from mtw_aticle_blog import entites_aticle_blog
+from mtw_article_categories import schema_article_categories,crud_aricle_categories,entites_article_categories
 
 app = FastAPI(
     title="Mootae World API Doccument",
@@ -44,7 +51,7 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 
 
-
+#========================== User Tag ==========================
 #ในกรณีถ้าต้องการดึงข้อมูลหลายเรคคอร์ดให้ใช้ List
 @app.get(
         "/users", 
@@ -98,7 +105,8 @@ async def delete_user_by_id(
         raise HTTPException(status_code=404, detail="User not found")
     else:
         raise HTTPException(status_code=200, detail=f"Delete User Success: {user.id}")
-
+    
+#========================== Role Tag ==========================
 
 @app.get(
         "/role", 
@@ -117,7 +125,7 @@ def get_role(
 async def create_role(role:schema_role.create_mtw_role, db:Session=Depends(get_db)):
     return crud_role.create_user(db=db,role=role)
 
-
+#========================== Location Tag ==========================
 
 @app.get(
         "/location/province", 
@@ -161,6 +169,8 @@ def FindAllZone(
     return crud_location.FindAllZone(db,page,limit)
 
 
+#========================== Order Types Tag ==========================
+
 @app.get(
         "/order_types", 
         response_model=schema_order_type.order_type_Response ,
@@ -182,6 +192,29 @@ async def getall_Oder_Type(
         )
 async def create_order_type(order_type: schema_order_type.order_type_create, db: Session = Depends(get_db)):
     return crud_orders_type.Create(db=db, order_type=order_type)
+@app.delete(
+    "/order_type/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Order Type"]
+)
+async def deleteOdertype(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_orders_type.deleteById(db=db, id=id)
+    return response
+
+@app.patch(
+    "/order_type/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Order Type"]
+)
+async def updateOrderType(order_type: schema_order_type.order_type_update,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_orders_type.updateById(db=db, id=id, order_type=order_type)
+
+
+#========================== Promotion Tag ==========================
 
 @app.get(
         "/promotions", 
@@ -231,6 +264,7 @@ async def delete_promotion(
     # else:
     #     raise HTTPException(status_code=200, detail=f"Delete response Success: {response.id}")
 
+#========================== Orders Tag ==========================
 @app.get(
         "/orders", 
         response_model=response.PaginatedResponse[schema_order.mtw_order] ,
@@ -253,3 +287,72 @@ async def getall_Oders(
 async def create_orders(orders: schema_order.mtw_order_create, db: Session = Depends(get_db)):
     print(orders)
     return crud_order.create(db=db, orders=orders)
+@app.get(
+        "/ordersByEmail/",
+        response_model=response.PaginatedResponse[schema_order.mtw_order] ,
+        tags=["Orders"],
+        summary="Find Orders By Email"
+)
+async def findOrderByEmail(
+    email: str,
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_order.findByEmail(db=db, email=email, page=page, limit=limit)
+    return response_data
+
+@app.delete(
+    "/orders/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Orders"]
+)
+async def deleteOrder(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_order.deleteById(db=db, id=id)
+    return response
+
+@app.patch(
+    "/orders/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Orders"]
+)
+async def updateOrder(order: schema_order.mtw_order_update,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_order.updateById(db=db, id=id, order=order)
+
+#========================== Slide New Tag ==========================
+
+@app.get(
+        "/slidenew",
+        response_model=response.PaginatedResponse[schema_slide_new.mtw_slide_new] ,
+        tags=["Slidenew"],
+        summary="Find Slidenew"
+)
+async def findSlidenew(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_slide_new.FindAll(db=db, page=page, limit=limit)
+    return response_data
+
+
+
+#========================== Article Categories Tag ==========================
+
+@app.get(
+        "/articlecategories/",
+        response_model=response.PaginatedResponse[schema_article_categories.mtw_article_categories] ,
+        tags=["Article Categories"],
+        summary="Find Article Categories"
+)
+async def findArticleCategories(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_aricle_categories.FindAll(db=db, page=page, limit=limit)
+    return response_data
