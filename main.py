@@ -12,6 +12,10 @@ import mtw_orders_type.schema_order_type as schema_order_type
 import mtw_role.schema_role as schema_role
 import Location.schema_location as schemas_location
 import database_config as db_con
+import mtw_orders.schema_orders as schema_order
+from mtw_orders import crud_order
+from utils import response
+from mtw_promotion import schema_promotion, crud_promotion
 
 app = FastAPI(
     title="Mootae World API Doccument",
@@ -171,7 +175,81 @@ async def getall_Oder_Type(
     rders_type = crud_orders_type.FindAll(db,page=page,limit=limit)
     return rders_type
 
-@app.post("/order_types/create",response_model=schema_order_type.order_type_create ,tags=["Order Type"])
+@app.post(
+        "/order_types/create",
+        response_model=schema_order_type.order_type_create ,
+        tags=["Order Type"]
+        )
 async def create_order_type(order_type: schema_order_type.order_type_create, db: Session = Depends(get_db)):
     return crud_orders_type.Create(db=db, order_type=order_type)
 
+@app.get(
+        "/promotions", 
+        response_model=response.PaginatedResponse[schema_promotion.mtw_promotion] ,
+        tags=["Promotion"],
+        summary="Find All Promotions"
+        )
+async def findall_Promotion(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+    ):
+    response = crud_promotion.FindAll(db,page=page,limit=limit)
+    return response
+
+@app.post(
+        "/promotion/create",
+        response_model=response.ResponseModel ,
+        tags=["Promotion"]
+        )
+async def create_promotion(promotion: schema_promotion.create_promotion, db: Session = Depends(get_db)):
+    print(promotion)
+    return crud_promotion.create(db=db, promotion=promotion)
+@app.patch(
+    "/promotion/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Promotion"]
+)
+async def update_promotion(promotion: schema_promotion.update_promotion,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_promotion.updateById(db=db, id=id, promotion=promotion)
+
+
+@app.delete(
+    "/promotion/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Promotion"]
+)
+async def delete_promotion(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_promotion.deleteById(db=db, id=id)
+    return response
+    # if not response:
+    #     raise HTTPException(status_code=404, detail="response not found")
+    # else:
+    #     raise HTTPException(status_code=200, detail=f"Delete response Success: {response.id}")
+
+@app.get(
+        "/orders", 
+        response_model=response.PaginatedResponse[schema_order.mtw_order] ,
+        tags=["Orders"],
+        summary="Find All Orders"
+        )
+async def getall_Oders(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+    ):
+    order_response = crud_order.FindAll(db,page=page,limit=limit)
+    return order_response
+
+@app.post(
+        "/orders/create",
+        response_model=response.ResponseModel ,
+        tags=["Orders"]
+        )
+async def create_orders(orders: schema_order.mtw_order_create, db: Session = Depends(get_db)):
+    print(orders)
+    return crud_order.create(db=db, orders=orders)

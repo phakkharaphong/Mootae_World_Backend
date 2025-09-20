@@ -26,6 +26,20 @@ class mtw_order_type(BaseModel):
        "from_attributes": True   # ✅ Pydantic v2
     }
 
+
+class mtw_order_type_join(BaseModel):
+    id: str = Field(
+        description="order_type id",
+        default="EXasfew565d2"
+    )
+    type_name: str |None = Field(
+        description="type_name name",
+        default="Collection 1"
+    )
+    model_config = {
+       "from_attributes": True   # ✅ Pydantic v2
+    }
+
 class order_type_create(BaseModel):
     type_name: str | None = Field(
         description="type_name name",

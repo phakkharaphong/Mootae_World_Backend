@@ -13,4 +13,4 @@ class mtw_orders_type(Base):
     updated_at = Column(DateTime)
     updated_by = Column(String(50), index=True)
      # Relationship (one zone -> many provinces)
-    #User = relationship("User_entitie", back_populates="role")
+    orders = relationship("mtw_orders", back_populates="order_type")
