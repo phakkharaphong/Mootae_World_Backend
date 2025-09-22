@@ -21,3 +21,8 @@ class ResponseDeleteModel(BaseModel):
     status: int
     message: str
     data: str
+
+class ResponseByIdModel(BaseModel, Generic[T]):
+    status: int
+    message: str
+    data: List[T]

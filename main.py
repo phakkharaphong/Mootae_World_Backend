@@ -279,14 +279,19 @@ async def getall_Oders(
     order_response = crud_order.FindAll(db,page=page,limit=limit)
     return order_response
 
-@app.post(
-        "/orders/create",
-        response_model=response.ResponseModel ,
-        tags=["Orders"]
-        )
-async def create_orders(orders: schema_order.mtw_order_create, db: Session = Depends(get_db)):
-    print(orders)
-    return crud_order.create(db=db, orders=orders)
+@app.get(
+    "/order/{id}",
+    response_model=response.ResponseModel,
+    tags=["Orders"],
+    summary="getBy Id Order"
+)
+async def getByIdOrder(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_order.getById(db=db, id=id)
+    return response
+
 @app.get(
         "/ordersByEmail/",
         response_model=response.PaginatedResponse[schema_order.mtw_order] ,
@@ -301,6 +306,16 @@ async def findOrderByEmail(
 ):
     response_data = crud_order.findByEmail(db=db, email=email, page=page, limit=limit)
     return response_data
+
+
+@app.post(
+        "/orders/create",
+        response_model=response.ResponseModel ,
+        tags=["Orders"]
+        )
+async def create_orders(orders: schema_order.mtw_order_create, db: Session = Depends(get_db)):
+    print(orders)
+    return crud_order.create(db=db, orders=orders)
 
 @app.delete(
     "/orders/{id}",
@@ -338,9 +353,51 @@ async def findSlidenew(
 ):
     response_data = crud_slide_new.FindAll(db=db, page=page, limit=limit)
     return response_data
+@app.get(
+    "/slidenew/{id}",
+    response_model=response.ResponseModel,
+    tags=["Slidenew"],
+    summary="getBy Id SlideNew"
+)
+async def getByIdSlideNew(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_slide_new.getById(db=db, id=id)
+    return response
 
+@app.post(
+        "/slidenew/create",
+        response_model=response.ResponseModel ,
+        tags=["Slidenew"],
+        summary="Create Slidenew"
+        )
+async def create_slide_new(slide_new: schema_slide_new.create_mtw_slide_new, db: Session = Depends(get_db)):
+    print(slide_new)
+    return crud_slide_new.create(db=db, slide_new=slide_new)
 
+@app.patch(
+    "/slidenew/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Slidenew"],
+    summary="Update Slidenew"
+)
+async def updateSlidenew(slide_new: schema_slide_new.update_mtw_slide_new,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_slide_new.updateById(db=db, id=id, slide_new=slide_new)
 
+@app.delete(
+    "/slidenew/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Slidenew"],
+    summary="Delete Slidenew"
+)
+async def deleteSlideNew(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_slide_new.deleteById(db=db, id=id)
+    return response
 #========================== Article Categories Tag ==========================
 
 @app.get(
@@ -356,3 +413,49 @@ async def findArticleCategories(
 ):
     response_data = crud_aricle_categories.FindAll(db=db, page=page, limit=limit)
     return response_data
+
+@app.get(
+    "/articlecategories/{id}",
+    response_model=response.ResponseModel,
+    tags=["Article Categories"],
+    summary="getBy Id Article Categories"
+)
+async def getByIdArticleCategories(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_aricle_categories.getById(db=db, id=id)
+    return response
+
+@app.post(
+        "/articlecategories/create",
+        response_model=response.ResponseModel ,
+        tags=["Article Categories"],
+        summary="Create Article Categories"
+        )
+async def create_article_categories(aricle_categories: schema_article_categories.create_mtw_article_categories, db: Session = Depends(get_db)):
+    print(aricle_categories)
+    return crud_aricle_categories.create(db=db, aricle_categories=aricle_categories)
+
+@app.patch(
+    "/articlecategories/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Article Categories"],
+    summary="Update Article Categories"
+)
+async def update_article_categories(aricle_categories: schema_article_categories.update_mtw_article_categories,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_aricle_categories.updateById(db=db, id=id, aricle_categories=aricle_categories)
+
+@app.delete(
+    "/articlecategories/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Article Categories"],
+    summary="Delete Article Categories"
+)
+async def deleteArticleCategories(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_aricle_categories.deleteById(db=db, id=id)
+    return response

@@ -116,7 +116,21 @@ def deleteById(db:Session, id: str):
         message="delete success",
         data=id
         )
+def getById(db: Session, id: string):
+    if id :
+       respon = db.query(entites_orders.mtw_orders).filter(entites_orders.mtw_orders.id == id).first()
+       if not respon:
+            raise HTTPException(status_code=404, detail="Order id not found")
+
+        #แปลง Model Sql Achem to model validate
+       respon_data = mtw_order.model_validate(respon)
+       return  ResponseModel(
+           status=200,
+           message="success",
+           data=respon_data
+       )
     
+
 def updateById(db: Session, id: str, order: mtw_order_update):
     thai_timezone = pytz.timezone('Asia/Bangkok')
 

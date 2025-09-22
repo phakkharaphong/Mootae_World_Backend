@@ -22,6 +22,7 @@ class mtw_article_categories(BaseModel):
     )
     updated_at: datetime | None = None
     updated_by: str | None = None
+    model_config = {"from_attributes": True}
 
 class create_mtw_article_categories(BaseModel):
     # id: str | None = Field(
@@ -41,6 +42,7 @@ class create_mtw_article_categories(BaseModel):
         description="created by",
         default="Admin"   
     )
+    model_config = {"from_attributes": True}
 
 class update_mtw_article_categories(BaseModel):
     # id: str | None = Field(
@@ -60,3 +62,4 @@ class update_mtw_article_categories(BaseModel):
         description="updated by",
         default="Admin"   
     )
+    model_config = {"from_attributes": True}

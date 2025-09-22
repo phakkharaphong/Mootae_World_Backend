@@ -36,6 +36,10 @@ class mtw_slide_new(BaseModel):
     )
     updated_at: datetime | None = None
     updated_by: Optional[str] | None = None
+    model_config = {
+       "from_attributes": True   # ✅ Pydantic v2
+    }
+
 class create_mtw_slide_new(BaseModel):
     # id: str | None = Field(
     #     description="role id",
@@ -66,6 +70,9 @@ class create_mtw_slide_new(BaseModel):
         description="created by",
         default="Admin"   
     )
+    model_config = {
+       "from_attributes": True   # ✅ Pydantic v2
+    }
 
 
 class update_mtw_slide_new(BaseModel):
@@ -98,3 +105,6 @@ class update_mtw_slide_new(BaseModel):
         description="updated by",
         default="Admin"   
     )
+    model_config = {
+       "from_attributes": True   # ✅ Pydantic v2
+    }
