@@ -1,10 +1,5 @@
-from shlex import quote
-from typing import Annotated, Union
-from enum import Enum
+from typing import Annotated
 from fastapi import FastAPI,Depends, HTTPException
-from flask import Flask
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
@@ -15,14 +10,14 @@ import user.schema as schemas
 import mtw_orders_type.schema_order_type as schema_order_type
 import mtw_role.schema_role as schema_role
 import Location.schema_location as schemas_location
-import database_config as db_con
 import mtw_orders.schema_orders as schema_order
 from mtw_orders import crud_order
 from utils import response
 from mtw_promotion import schema_promotion, crud_promotion
 from mtw_slide_new import schema_slide_new, crud_slide_new
-from mtw_aticle_blog import entites_aticle_blog
+from mtw_aticle_blog import entites_aticle_blog,crud_aticle_blog,schema_aticle_blog
 from mtw_article_categories import schema_article_categories,crud_aricle_categories,entites_article_categories
+from mtw_blog_home_page import schema_blog_home_page, crud_blog_home_page , entites_blog_home_page
 
 app = FastAPI(
     title="Mootae World API Doccument",
@@ -458,4 +453,134 @@ async def deleteArticleCategories(
     db: Session = Depends(get_db)
 ):
     response =  crud_aricle_categories.deleteById(db=db, id=id)
+    return 
+
+#========================== Article Blog Tag ==========================
+
+@app.get(
+        "/articleblog/",
+        response_model=response.PaginatedResponse[schema_aticle_blog.mtw_article_blog] ,
+        tags=["Article Blog"],
+        summary="Find Article Blog"
+)
+async def findArticleBlog(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_aticle_blog.FindAll(db=db, page=page, limit=limit)
+    return response_data
+
+@app.get(
+    "/articleblog/{id}",
+    response_model=response.ResponseModel,
+    tags=["Article Blog"],
+    summary="getBy id Article Blog"
+)
+async def getByIdArticleblog(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_aticle_blog.getById(db=db, id=id)
     return response
+
+@app.patch(
+    "/articleblog/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Article Blog"],
+    summary="Update Article Blog"
+)
+async def update_article_blog(aticle_blog: schema_aticle_blog.update_mtw_article_blog,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_aticle_blog.updateById(db=db, id=id, aticle_blog=aticle_blog)
+
+
+@app.post(
+        "/articleblog/create",
+        response_model=response.ResponseModel ,
+        tags=["Article Blog"],
+        summary="Create Article Blog"
+        )
+async def create_article_blog(aricle_blog: schema_aticle_blog.create_mtw_article_blog, db: Session = Depends(get_db)):
+    print(aricle_blog)
+    return crud_aticle_blog.create(db=db, aricle_blog=aricle_blog)
+
+
+
+@app.delete(
+    "/articleblog/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Article Blog"],
+    summary="Delete Article Blog"
+)
+async def deleteArticleBlog(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_aticle_blog.deleteById(db=db, id=id) 
+    return  response
+
+
+#=========================== blog home page ====================
+
+@app.get(
+        "/bloghomepage/",
+        response_model=response.PaginatedResponse[schema_blog_home_page.mtw_blog_home_page] ,
+        tags=["Blog Home Page"],
+        summary="Find Blog home page"
+)
+async def findBlogHomePage(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_blog_home_page.FindAll(db=db, page=page, limit=limit)
+    return response_data
+
+
+@app.get(
+    "/bloghomepage/{id}",
+    response_model=response.ResponseModel,
+    tags=["Blog Home Page"],
+    summary="getBy id Blog Home Page"
+)
+async def getById_blog_home_page(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_blog_home_page.getById(db=db, id=id)
+    return response
+
+@app.post(
+        "/bloghomepage/create",
+        response_model=response.ResponseModel ,
+        tags=["Blog Home Page"],
+        summary="Create Blog Home Page"
+        )
+async def create_blog_home_page(blog_home_page: schema_blog_home_page.create_blog_home_page, db: Session = Depends(get_db)):
+    print(blog_home_page)
+    return crud_blog_home_page.create(db=db, blog_home_page=blog_home_page)
+
+
+@app.patch(
+    "/bloghomepage/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Blog Home Page"],
+    summary="Update Blog Home Page"
+)
+async def update_blog_home_page(blog_home_page: schema_blog_home_page.update_blog_home_page,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_blog_home_page.updateById(db=db, id=id, blog_home_page=blog_home_page)
+
+@app.delete(
+    "/bloghomepage/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Blog Home Page"],
+    summary="Delete Blog Home Page"
+)
+async def delete_blog_home_page(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_blog_home_page.deleteById(db=db, id=id) 
+    return  response

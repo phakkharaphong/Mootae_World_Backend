@@ -42,6 +42,9 @@ class mtw_article_blog(BaseModel):
     )
     updated_at: datetime | None = None
     updated_by: str | None = None
+    model_config = {
+        "from_attributes": True
+        }
 
 class create_mtw_article_blog(BaseModel):
     # id: str | None = Field(
@@ -77,10 +80,13 @@ class create_mtw_article_blog(BaseModel):
         description="Created time",
         default_factory=datetime.now() 
     )
-    created_by: str = Field(
+    created_by: str | None = Field(
         description="created by",
         default="Admin"   
     )
+    model_config = {
+        "from_attributes": True
+        }
 
 class update_mtw_article_blog(BaseModel):
 
@@ -117,3 +123,6 @@ class update_mtw_article_blog(BaseModel):
         description="updated by",
         default="Admin"   
     )
+    model_config = {
+        "from_attributes": True
+        }

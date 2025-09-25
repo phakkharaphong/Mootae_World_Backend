@@ -1,7 +1,3 @@
-from flask import Flask
-from flask.cli import FlaskGroup
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -11,6 +7,10 @@ import os
 # Load environment variables from .env file
 load_dotenv(dotenv_path=r"C:\\Users\\chuwo\\OneDrive\\เอกสาร\\Desktop\\all_project\\Mootae_World_Backend\\environment\\.database.env")
 
+
+
+# Load environment variables from .env file ForDocker
+#load_dotenv(dotenv_path=r"./environment/.database.env")
 
 DB_URL = DB_URL = os.getenv("DB_URL")
 url_api_doc = os.getenv("API_URL_Local")

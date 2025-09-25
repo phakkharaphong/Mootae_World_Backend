@@ -13,3 +13,9 @@ alembic revision --autogenerate -m "create tables"
 ## Upgrade And dowgrade Table 
 alembic upgrade head / alembic downgrade base 
 
+alembic revision --autogenerate -m "message"
+
+pip freeze > requirements.txt
+
+
+docker build -t fastapi-app . --no-cache

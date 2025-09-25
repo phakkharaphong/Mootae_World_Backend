@@ -20,10 +20,11 @@ from user.entitie_user import Base as User
 from mtw_slide_new.entites_slide_new import Base as SlideNew
 from mtw_article_categories.entites_article_categories import Base as ArticleCategories
 from mtw_aticle_blog.entites_aticle_blog import Base as AticleBlog
+from mtw_blog_home_page.entites_blog_home_page import Base as BlogHomePage
 
 # รวม metadata ของทุก Base
 metadata = MetaData()
-for b in [OrdersBase, OrdersTypeBase, PromotionBase, RoleBase,User, SlideNew, ArticleCategories, AticleBlog]:
+for b in [OrdersBase, OrdersTypeBase, PromotionBase, RoleBase,User, SlideNew, ArticleCategories, AticleBlog,BlogHomePage]:
     for table in b.metadata.tables.values():
         table.tometadata(metadata)
 
