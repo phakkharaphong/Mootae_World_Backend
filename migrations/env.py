@@ -21,10 +21,13 @@ from mtw_slide_new.entites_slide_new import Base as SlideNew
 from mtw_article_categories.entites_article_categories import Base as ArticleCategories
 from mtw_aticle_blog.entites_aticle_blog import Base as AticleBlog
 from mtw_blog_home_page.entites_blog_home_page import Base as BlogHomePage
+from mtw_footer_website.entites_footer_website import Base as footer_icon
+from mtw_slide_activity.entites_slide_activity import Base as SlideActivity
 
 # รวม metadata ของทุก Base
 metadata = MetaData()
-for b in [OrdersBase, OrdersTypeBase, PromotionBase, RoleBase,User, SlideNew, ArticleCategories, AticleBlog,BlogHomePage]:
+for b in [OrdersBase, OrdersTypeBase, PromotionBase, RoleBase,User, SlideNew, ArticleCategories, AticleBlog,BlogHomePage,footer_icon
+          ,SlideActivity]:
     for table in b.metadata.tables.values():
         table.tometadata(metadata)
 

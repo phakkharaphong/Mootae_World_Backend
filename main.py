@@ -18,7 +18,9 @@ from mtw_slide_new import schema_slide_new, crud_slide_new
 from mtw_aticle_blog import entites_aticle_blog,crud_aticle_blog,schema_aticle_blog
 from mtw_article_categories import schema_article_categories,crud_aricle_categories,entites_article_categories
 from mtw_blog_home_page import schema_blog_home_page, crud_blog_home_page , entites_blog_home_page
-
+from mtw_footer_website import schema_footer_website, crud_footer_website
+from mtw_slide_activity import schema_slide_activity,crud_slide_activity
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(
     title="Mootae World API Doccument",
         description="This is a API Docuemtn Project Mootae World API.",
@@ -33,6 +35,17 @@ app = FastAPI(
             "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
         },
 )
+
+
+# ✅ อนุญาตทุก origin
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # หรือกำหนดเฉพาะ ["http://127.0.0.1:5500"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_db():
     db = SessionLocal()
@@ -583,4 +596,134 @@ async def delete_blog_home_page(
     db: Session = Depends(get_db)
 ):
     response =  crud_blog_home_page.deleteById(db=db, id=id) 
+    return  response
+
+
+#=========================== footer icon page ====================
+
+@app.get(
+        "/footericonpage/",
+        response_model=response.PaginatedResponse[schema_footer_website.mtw_footer_website] ,
+        tags=["Footer Icon Page"],
+        summary="Find footer icon page"
+)
+async def findFooterIconPage(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_footer_website.FindAll(db=db, page=page, limit=limit)
+    return response_data
+
+@app.get(
+    "/footericonpage/{id}",
+    response_model=response.ResponseModel,
+    tags=["Footer Icon Page"],
+    summary="getBy id footer icon page"
+)
+async def getById_footer_icon(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_footer_website.getById(db=db, id=id)
+    return response
+
+@app.patch(
+    "/footericonpage/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Footer Icon Page"],
+    summary="Update footer icon page"
+)
+async def update_footer_icon(footer_website: schema_footer_website.update_footer_website,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_footer_website.updateById(db=db, id=id, footer_website=footer_website)
+
+
+@app.post(
+        "/footericonpage/create",
+        response_model=response.ResponseModel ,
+        tags=["Footer Icon Page"],
+        summary="Create footer icon page"
+        )
+async def create_footer_icon_(footer_website: schema_footer_website.create_footer_website, db: Session = Depends(get_db)):
+    print(footer_website)
+    return crud_footer_website.create(db=db, footer_website=footer_website)
+
+
+@app.delete(
+    "/footericonpage/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Footer Icon Page"],
+    summary="Delete footer icon page"
+)
+async def delete_blog_home_pagfooter_icon(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_footer_website.deleteById(db=db, id=id) 
+    return  response
+
+
+#=========================== slide_activity ====================
+
+@app.get(
+        "/slideactivity/",
+        response_model=response.PaginatedResponse[schema_slide_activity.mtw_slide_activity] ,
+        tags=["Slide Activity"],
+        summary="Find slide activity"
+)
+async def findSlideActivity(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db)
+):
+    response_data = crud_slide_activity.FindAll(db=db, page=page, limit=limit)
+    return response_data
+
+@app.get(
+    "/slideactivity/{id}",
+    response_model=response.ResponseModel,
+    tags=["Slide Activity"],
+    summary="getBy id slide activity"
+)
+async def getByIdSlideActivity(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_slide_activity.getById(db=db, id=id)
+    return response
+
+@app.patch(
+    "/slideactivity/{id}",
+    response_model=response.ResponseModel ,
+    tags=["Slide Activity"],
+    summary="Update slide activity"
+)
+async def updateSlideActivity(slide_activity: schema_slide_activity.update_slide_activity,id: str, db: Session = Depends(get_db)):
+    print(id)
+    return crud_slide_activity.updateById(db=db, id=id, slide_activity=slide_activity)
+
+
+@app.post(
+        "/slideactivity/create",
+        response_model=response.ResponseModel ,
+        tags=["Slide Activity"],
+        summary="Create slide activity"
+        )
+async def createSlideActivity(slide_activity: schema_slide_activity.create_slide_activity, db: Session = Depends(get_db)):
+    print(slide_activity)
+    return crud_slide_activity.create(db=db, slide_activity=slide_activity)
+
+
+@app.delete(
+    "/slideactivity/{id}",
+    response_model=response.ResponseDeleteModel,
+    tags=["Slide Activity"],
+    summary="Delete slide activity"
+)
+async def deleteSlideActivity(
+    id: str,
+    db: Session = Depends(get_db)
+):
+    response =  crud_slide_activity.deleteById(db=db, id=id) 
     return  response
