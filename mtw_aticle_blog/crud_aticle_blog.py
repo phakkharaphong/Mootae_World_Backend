@@ -7,17 +7,40 @@ from mtw_aticle_blog import entites_aticle_blog, schema_aticle_blog
 from sqlalchemy.orm import Session,joinedload
 
 from utils.response import PaginatedResponse, Pagination, ResponseDeleteModel, ResponseModel
-def FindAll(db: Session, page:int=0, limit:int=100):
+def FindAll(
+    db: Session,
+    page: int = 0,
+    limit: int = 100,
+    categories_id: str | None = None,
+    keyword: str | None = None,
+    is_active: bool | None = None
+):
     offset = (page - 1) * limit
-    rows = (
-        db.query(entites_aticle_blog.mtw_aticle_blog)
-        .options(joinedload(entites_aticle_blog.mtw_aticle_blog.article_categories))  # ✅ join order_type
-        .offset(offset)
-        .limit(limit)
-        .all()
+
+    query = db.query(entites_aticle_blog.mtw_aticle_blog).options(
+        joinedload(entites_aticle_blog.mtw_aticle_blog.article_categories)
     )
-    total = db.query(entites_aticle_blog.mtw_aticle_blog).count()
-    respons = [schema_aticle_blog.mtw_article_blog.model_validate(vars(r)) for r in rows]
+    if keyword:
+        query = query.filter(
+            entites_aticle_blog.mtw_aticle_blog.title.ilike(f"%{keyword}%")
+        )
+    if categories_id:
+        query = query.filter(
+            entites_aticle_blog.mtw_aticle_blog.article_categories_id == categories_id
+        )
+    if is_active is not None:
+        query = query.filter(
+            entites_aticle_blog.mtw_aticle_blog.is_active == is_active
+        )
+
+    total = query.count()
+    rows = query.offset(offset).limit(limit).all()
+
+    respons = [
+        schema_aticle_blog.mtw_article_blog.model_validate(vars(r))
+        for r in rows
+    ]
+
     return PaginatedResponse[schema_aticle_blog.mtw_article_blog](
         message="success",
         data=respons,
@@ -27,6 +50,7 @@ def FindAll(db: Session, page:int=0, limit:int=100):
             total=total
         )
     )
+
 def create(db: Session,aricle_blog: schema_aticle_blog.create_mtw_article_blog):
     thai_timezone = pytz.timezone('Asia/Bangkok')
     #Nano ID

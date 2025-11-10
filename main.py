@@ -1,5 +1,6 @@
+import shutil
 from typing import Annotated
-from fastapi import FastAPI,Depends, HTTPException
+from fastapi import FastAPI,Depends, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
@@ -479,9 +480,13 @@ async def deleteArticleCategories(
 async def findArticleBlog(
     page:int=1, 
     limit:int=10, 
+    categories_id: str | None = None,
+    keyword: str | None = None,
+    is_active: bool | None = None,
     db:Session=Depends(get_db)
+    
 ):
-    response_data = crud_aticle_blog.FindAll(db=db, page=page, limit=limit)
+    response_data = crud_aticle_blog.FindAll(db=db, page=page, limit=limit,categories_id=categories_id,keyword = keyword, is_active = is_active)
     return response_data
 
 @app.get(
@@ -727,3 +732,31 @@ async def deleteSlideActivity(
 ):
     response =  crud_slide_activity.deleteById(db=db, id=id) 
     return  response
+
+
+#------------------- Uploadfile-------------------
+@app.post(
+        "/uploadfile/",
+        tags=["Uploadfile"],
+        summary="Tag For Uploadfile"
+        )
+async def create_upload_file(file: UploadFile):
+    try:
+        file_location = f"UploadedFiles/{file.filename}"
+
+    # Save the file
+        with open(file_location, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+    except Exception as e:
+       return {"message": f"There was an error uploading the file: {e}"}
+    finally:
+        file.file.close() # Close the file-like object
+
+    return {
+        "message": "File uploaded successfully!", 
+        "filename": file.filename,
+        "file Size": file.size,
+        "file content_type":file.content_type, 
+        "file headers": file.headers
+        }

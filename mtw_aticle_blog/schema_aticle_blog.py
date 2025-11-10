@@ -1,6 +1,9 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+from mtw_article_categories.schema_article_categories import mtw_article_categories, mtw_article_categories_ref
+
+
 
 class mtw_article_blog(BaseModel):
     id: str | None = Field(
@@ -31,6 +34,7 @@ class mtw_article_blog(BaseModel):
         description="article_categories_id",
         default="ynuJ2S1LDMNd4VVYLpIM0GZbMzlZz2A4fFH3gyxennX1Y0pR5e"
     )
+    article_categories: mtw_article_categories_ref | None = None
     is_active: bool | None = None
     created_at: datetime = Field(
         description="Created time",
@@ -43,7 +47,7 @@ class mtw_article_blog(BaseModel):
     updated_at: datetime | None = None
     updated_by: str | None = None
     model_config = {
-        "from_attributes": True
+        "from_attributes": True,
         }
 
 class create_mtw_article_blog(BaseModel):

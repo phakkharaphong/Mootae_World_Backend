@@ -24,6 +24,19 @@ class mtw_article_categories(BaseModel):
     updated_by: str | None = None
     model_config = {"from_attributes": True}
 
+
+class mtw_article_categories_ref(BaseModel):
+    id: str | None = Field(
+        description="role id",
+        default="EXasfew565d2"
+    )
+    name: str | None = Field(
+        description="Title Slide New",
+        default="สายมู"
+    )
+    is_active: bool | None = None
+    model_config = {"from_attributes": True}
+
 class create_mtw_article_categories(BaseModel):
     # id: str | None = Field(
     #     description="role id",
