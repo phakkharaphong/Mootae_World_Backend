@@ -86,14 +86,15 @@ def getById(db: Session, id: string):
        respon = db.query(entites_aticle_blog.mtw_aticle_blog).filter(entites_aticle_blog.mtw_aticle_blog.id == id).first()
        if not respon:
             raise HTTPException(status_code=404, detail="article blog not found")
-
-        #แปลง Model Sql Achem to model validate
-       respon_data = schema_aticle_blog.mtw_article_blog.model_validate(respon)
-       return  ResponseModel(
-           status=200,
-           message="success",
-           data=respon_data
-       )
+    respon.view += 1
+    db.commit()
+    db.refresh(respon)
+    respon_data = schema_aticle_blog.mtw_article_blog.model_validate(respon)
+    return  ResponseModel(
+        status=200,
+        message="success",
+        data=respon_data
+    )
     
 def updateById(db: Session, id: str, aticle_blog: schema_aticle_blog.update_mtw_article_blog):
     thai_timezone = pytz.timezone('Asia/Bangkok')
@@ -149,3 +150,5 @@ def deleteById(db:Session, id: str):
         message="delete success",
         data=id
         )
+    
+
