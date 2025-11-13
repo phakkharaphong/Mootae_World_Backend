@@ -108,6 +108,20 @@ class UserSchemaModel(BaseModel):
     model_config = {
        "from_attributes": True   # ✅ Pydantic v2
     }
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    
+
+class accesstoken(BaseModel):
+    access_token: str
+
+class Login(BaseModel):
+    username: str
+    password: str
+
 class UsersResponse(BaseModel):
     page: int
     limit: int

@@ -1,12 +1,14 @@
 import shutil
 from typing import Annotated
-from fastapi import FastAPI,Depends, HTTPException, UploadFile
+from fastapi import FastAPI,Depends, HTTPException, UploadFile,status
+from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
 from mtw_role import crud_role
 from mtw_orders_type import crud_orders_type
 from Location import crud_location
+from user.entitie_user import User_entitie
 import user.schema as schemas
 import mtw_orders_type.schema_order_type as schema_order_type
 import mtw_role.schema_role as schema_role
@@ -16,12 +18,13 @@ from mtw_orders import crud_order
 from utils import response
 from mtw_promotion import schema_promotion, crud_promotion
 from mtw_slide_new import schema_slide_new, crud_slide_new
-from mtw_aticle_blog import entites_aticle_blog,crud_aticle_blog,schema_aticle_blog
-from mtw_article_categories import schema_article_categories,crud_aricle_categories,entites_article_categories
-from mtw_blog_home_page import schema_blog_home_page, crud_blog_home_page , entites_blog_home_page
+from mtw_aticle_blog import crud_aticle_blog,schema_aticle_blog
+from mtw_article_categories import schema_article_categories,crud_aricle_categories
+from mtw_blog_home_page import schema_blog_home_page, crud_blog_home_page 
 from mtw_footer_website import schema_footer_website, crud_footer_website
 from mtw_slide_activity import schema_slide_activity,crud_slide_activity
 from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="Mootae World API Doccument",
         description="This is a API Docuemtn Project Mootae World API.",
@@ -38,10 +41,10 @@ app = FastAPI(
 )
 
 
-# ✅ อนุญาตทุก origin
+# อนุญาตทุก origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # หรือกำหนดเฉพาะ ["http://127.0.0.1:5500"]
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,35 +62,32 @@ def get_db():
 
 db_dependency = Annotated[Session, Depends(get_db)]
 
+# Define the OAuth2 scheme for token-based authentication
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
 
 #========================== User Tag ==========================
-#ในกรณีถ้าต้องการดึงข้อมูลหลายเรคคอร์ดให้ใช้ List
-@app.get(
-        "/users", 
-        response_model=schemas.UsersResponse ,
-        tags=["User"],
-        summary="Find All User"
-        )
-def get_users(
-    page:int=1, 
-    limit:int=10, 
-    db:Session=Depends(get_db)
-    ):
-    users = crud.get_users(db,page=page,limit=limit)
-    return users
 
-@app.get(
-        "/user/{user_id}",
-        response_model=schemas.UserSchema ,
+
+@app.post(
+        "/token", 
+        response_model=schemas.Token ,
         tags=["User"],
-        summary="Get User By ID"
+        summary="Access Token"
         )
-async def get_userbyid(
-    user_id: str, 
-    db:Session=Depends(get_db)
-    ):
-    user = crud.getById(db,user_id=user_id)
-    return user
+def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
+    username = form_data.username
+    password = form_data.password
+    user = crud.getUsername(db=db,username=username, password=password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+
+    access_token = crud.create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/users",response_model=schemas.UserCreate ,tags=["User"])
 async def create_user(user:schemas.UserCreate, db:Session=Depends(get_db)):
@@ -99,6 +99,66 @@ async def create_user(user:schemas.UserCreate, db:Session=Depends(get_db)):
     #                            Telephone=user.Telephone,
     #                            MobilePhone=user.MobilePhone)
     return crud.create_user(db=db,user=user)
+
+
+
+@app.get(
+    "/users/me", 
+    response_model=schemas.UserSchema, 
+    tags=["User"],
+    summary="User Current"
+)
+async def read_users_me(
+    db: Session = Depends(get_db),
+    token: str = Depends(api_key_header)
+):
+    # decode token
+    username = crud.verify_token(token)
+    if username is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    # query user
+    user = db.query(User_entitie).filter(User_entitie.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+#ในกรณีถ้าต้องการดึงข้อมูลหลายเรคคอร์ดให้ใช้ List
+@app.get(
+        "/users", 
+        response_model=schemas.UsersResponse ,
+        tags=["User"],
+        summary="Find All User"
+        )
+def get_users(
+    page:int=1, 
+    limit:int=10, 
+    db:Session=Depends(get_db),
+    token: str = Depends(api_key_header)
+    ):
+    crud.verify_token(token)
+
+    users = crud.get_users(db,page=page,limit=limit)
+    return users
+
+@app.get(
+        "/user/{user_id}",
+        response_model=schemas.UserSchema ,
+        tags=["User"],
+        summary="Get User By ID"
+        )
+async def get_userbyid(
+    user_id: str, 
+    db:Session=Depends(get_db),
+    token: str = Depends(api_key_header)
+    ):
+
+    crud.verify_token(token)
+    user = crud.getById(db,user_id=user_id)
+    return user
 
 @app.delete(
     "/delete/user/{user_id}",
