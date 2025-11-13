@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  mootaeworld:
+    image: luckyweb_backend
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+    ports:
+      - 2000:2000
+    restart: always
+    volumes:
+      - ./public:/usr/src/app/public
