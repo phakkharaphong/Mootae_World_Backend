@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 
 # Load environment variables from .env file
-load_dotenv(dotenv_path=r"C:\\Users\\chuwo\\OneDrive\\เอกสาร\\Desktop\\all_project\\Mootae_World_Backend\\environment\\.database.env")
+load_dotenv(dotenv_path=r"environment\\.database.env")
 
 
 
