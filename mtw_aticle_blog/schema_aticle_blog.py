@@ -82,7 +82,7 @@ class create_mtw_article_blog(BaseModel):
     is_active: bool | None = None
     created_at: datetime = Field(
         description="Created time",
-        default_factory=datetime.now() 
+        default_factory=datetime.now  
     )
     created_by: str | None = Field(
         description="created by",
