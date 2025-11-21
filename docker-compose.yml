@@ -7,7 +7,10 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
+      DB_URL: "postgresql://user:password@db:5432/mydb"
+      API_DOC: "true"
       NODE_ENV: production
+      
     ports:
       - 2000:2000
     restart: always
