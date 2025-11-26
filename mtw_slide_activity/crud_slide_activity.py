@@ -69,15 +69,11 @@ def create(db: Session,slide_activity: schema_slide_activity.create_slide_activi
 def updateById(db: Session, id: str, slide_activity: schema_slide_activity.update_slide_activity):
     thai_timezone = pytz.timezone('Asia/Bangkok')
 
-    # 1. หา record เก่า
     respons = db.query(entites_slide_activity.mtw_slide_activity).filter(entites_slide_activity.mtw_slide_activity.id == id).first()
     if not respons:
         raise HTTPException(status_code=404, detail="slide not found")
-
-    # 2. ดึงเฉพาะ field ที่ส่งมา
     update_data = slide_activity.model_dump(exclude_unset=True)  # Pydantic v2 ใช้ model_dump()
     
-    # 3. อัพเดท field แบบ dynamic
     for key, value in update_data.items():
         setattr(respons, key, value)
 
@@ -94,7 +90,6 @@ def updateById(db: Session, id: str, slide_activity: schema_slide_activity.updat
     }
 
 
-    # 4. commit + refresh
     db.commit()
     db.refresh(respons)
 

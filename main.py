@@ -1,7 +1,11 @@
+from datetime import datetime
+import random
 import shutil
+import string
 from typing import Annotated
 from fastapi import FastAPI,Depends, HTTPException, UploadFile,status
 from fastapi.security import APIKeyHeader
+import pytz
 from sqlalchemy.orm import Session
 from database_config import SessionLocal
 from user import crud
@@ -24,6 +28,8 @@ from mtw_blog_home_page import schema_blog_home_page, crud_blog_home_page
 from mtw_footer_website import schema_footer_website, crud_footer_website
 from mtw_slide_activity import schema_slide_activity,crud_slide_activity
 from fastapi.middleware.cors import CORSMiddleware
+import mimetypes
+from mtw_attachment import schema_attachment,crud_attachment, entites_attachment
 
 app = FastAPI(
     title="Mootae World API Doccument",
@@ -73,7 +79,7 @@ api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 @app.post(
         "/token", 
         response_model=schemas.Token ,
-        tags=["User"],
+        tags=["Login"],
         summary="Access Token"
         )
 def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
@@ -795,28 +801,60 @@ async def deleteSlideActivity(
 
 
 #------------------- Uploadfile-------------------
-@app.post(
-        "/uploadfile/",
-        tags=["Uploadfile"],
-        summary="Tag For Uploadfile"
+@app.post("/uploadfile/", tags=["Uploadfile"], summary="Tag For Uploadfile")
+async def create_upload_file(
+    file: UploadFile,
+    db: Annotated[Session, Depends(get_db)],
+    token: str = Depends(api_key_header)
+):
+    username = crud.verify_token(token)
+    if username is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-async def create_upload_file(file: UploadFile):
-    try:
-        file_location = f"UploadedFiles/{file.filename}"
+    user = db.query(User_entitie).filter(User_entitie.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    # Save the file
+    try:
+        mime_type_txt = mimetypes.guess_extension(file.content_type)
+        thaiTimezone = pytz.timezone('Asia/Bangkok')
+        randomString = ''.join(random.choices(string.ascii_letters + string.digits, k=50))
+        file_location = f"UploadedFiles/{randomString}{mime_type_txt}"
+
+        # Save the file
         with open(file_location, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
     except Exception as e:
-       return {"message": f"There was an error uploading the file: {e}"}
+        return {"message": f"There was an error uploading the file: {e}"}
+
     finally:
-        file.file.close() # Close the file-like object
+        file.file.close()
+
+    dbAttachment = entites_attachment.mtw_attachment(
+        id=randomString,
+        fileName=file.filename,
+        content_type=file.content_type,
+        fileLocation=file_location,
+        fileSize=file.size,
+        mime=mime_type_txt,
+        created_at=datetime.now(thaiTimezone),
+        created_by=user.f_name 
+    )
+
+    db.add(dbAttachment)
+    db.commit()
+    db.refresh(dbAttachment)
 
     return {
-        "message": "File uploaded successfully!", 
-        "filename": file.filename,
-        "file Size": file.size,
-        "file content_type":file.content_type, 
-        "file headers": file.headers
-        }
+        "message": "File uploaded successfully!",
+        "uploaded_by": user.username,
+        "fileName": file.filename,
+        "fileSizeKB": file.size/1024,
+        "fileContent_type": file.content_type,
+        "fileLocation": file_location,
+        "mime": mime_type_txt
+    }

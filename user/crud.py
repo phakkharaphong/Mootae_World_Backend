@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import Depends, HTTPException, Header, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt

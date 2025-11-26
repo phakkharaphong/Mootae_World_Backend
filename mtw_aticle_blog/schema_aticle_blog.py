@@ -121,8 +121,9 @@ class update_mtw_article_blog(BaseModel):
     is_active: bool | None = None
     updated_at: datetime = Field(
         description="updated time",
-        default_factory=datetime.now() 
+        default_factory=datetime.now
     )
+    
     updated_by: str = Field(
         description="updated by",
         default="Admin"   
