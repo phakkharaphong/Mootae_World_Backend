@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      DB_URL: "postgresql+psycopg2://postgres:FC%qU[Scjz8#OE&R@172.17.0.1:5432/mootae_world"
+      DB_URL: "postgresql+psycopg2://postgres:FC%qU[Scjz8#OE&R@203.154.68.141:5432/mootae_world"
       API_DOC: "true"
       NODE_ENV: production
       ACCESS_TOKEN_EXPIRE_MINUTES: 30
