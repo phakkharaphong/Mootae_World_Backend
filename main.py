@@ -47,7 +47,7 @@ app = FastAPI(
         ocs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
-        root_path="/mootea_world"
+        root_path="/mootea_world_backend"
 )
 
 
