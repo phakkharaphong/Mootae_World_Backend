@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from database_config import Base
 class mtw_attachment (Base):
     __tablename__ = 'mtw_attachment'
@@ -8,8 +8,10 @@ class mtw_attachment (Base):
     fileLocation = Column(String(255))
     mime = Column(String(30))
     fileSize = Column(Integer)
+    is_active = Column(Boolean)
     created_at = Column(DateTime)
     created_by = Column(String(50), index=True)
     updated_at = Column(DateTime)
     updated_by = Column(String(50), index=True)
+    
 

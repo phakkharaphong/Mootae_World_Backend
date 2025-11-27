@@ -1,3 +1,5 @@
+
+from multiprocessing import get_context
 from typing import Annotated
 from fastapi import Depends, HTTPException, Header, status
 from fastapi.security import OAuth2PasswordBearer
@@ -10,7 +12,7 @@ import string
 from dotenv import load_dotenv
 import os
 from passlib.context import CryptContext
-
+import bcrypt
 # Load environment variables
 load_dotenv()
 
@@ -21,9 +23,17 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # -------------------------------
-def verify_password(plain_password):
-    return pwd_context.verify(plain_password)
+def verify_password(plain_password: str, hashed_password: str):
+    return bcrypt.checkpw(
+        plain_password.encode('utf-8'),
+        hashed_password.encode('utf-8')
+    )
 
+
+def hash_password(password: str):
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'),salt=salt)
+    return hashed_password.decode('utf-8')
 # def get_password_hash(password):
 #     return pwd_context.hash(password)
 
@@ -72,8 +82,8 @@ def verify_token(token: str):
                 },
         )
 
-def getUsername(db: Session,username: str,password: str):
-    return db.query(entitie_user.User_entitie).filter(entitie_user.User_entitie.username == username, entitie_user.User_entitie.password == password).first()
+def getUsername(db: Session,username: str):
+    return db.query(entitie_user.User_entitie).filter(entitie_user.User_entitie.username == username).first()
 
 
 async def get_current_user(db: Session,
@@ -131,7 +141,7 @@ def create_user(db: Session,user: schema.UserCreate):
     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     db_user = entitie_user.User_entitie(id = random_string,
                                         username = user.username,
-                                        password = user.password,
+                                        password = hash_password(user.password) ,
                                         f_name = user.f_name,
                                         l_name = user.l_name,
                                         phone = user.phone,
@@ -143,7 +153,7 @@ def create_user(db: Session,user: schema.UserCreate):
                                         is_active = True,
                                         created_at=datetime.utcnow())
     checkid = db.query(entitie_user.User_entitie).filter(entitie_user.User_entitie.id == db_user.id).first()
-    
+    print(user.password)
     if checkid:
         raise HTTPException(status_code=404, detail="User ID Invalid")
     else:

@@ -89,8 +89,11 @@ api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 def login_for_access_token(form_data: schemas.Login, db: Session = Depends(get_db)):
     username = form_data.username
     password = form_data.password
-    user = crud.getUsername(db=db,username=username, password=password)
-    if not user:
+    # user = crud.getUsername(db=db,username=username, password=password)
+    user = crud.getUsername(db, username)
+    password = crud.verify_password(password, user.password)
+
+    if not user and password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
