@@ -7,12 +7,13 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
-      DB_URL: "postgresql+psycopg2://postgres:FC%25qU%5BScjz8%23OE%26R@203.154.68.141:5432/mootae_world"
+      DB_URL: "postgresql+psycopg2://postgres:FC%25qU%5BScjz8%23OE%26R@172.17.0.1:5432/mootae_world"
       API_DOC: "true"
       NODE_ENV: production
       ACCESS_TOKEN_EXPIRE_MINUTES: "30"
       SECRET_KEY: "YOUR_SECRET_KEY_1234567890"
       REFRESH_SECRET_KEY: "7"
+      ALGORITHM: "HS256"
     ports:
       - 2000:2000
     restart: always
