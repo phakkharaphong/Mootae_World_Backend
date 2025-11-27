@@ -92,3 +92,4 @@ wheel==0.45.1
 wsproto==1.2.0
 PyJWT
 passlib
+bcrypt
