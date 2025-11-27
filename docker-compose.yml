@@ -11,7 +11,7 @@ services:
       API_DOC: "true"
       NODE_ENV: production
     env_file:
-      - ./environment/.env
+      - ./home/DEEPNDEV/Mootae_World_Backend/environment/.env
     ports:
       - 2000:2000
     restart: always
