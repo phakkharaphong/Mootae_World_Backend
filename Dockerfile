@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # เปิด port 8000 (default ของ uvicorn)
-EXPOSE 8000
+EXPOSE 2000
 
 # รัน FastAPI ด้วย Uvicorn
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
