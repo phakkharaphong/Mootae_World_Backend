@@ -19,4 +19,4 @@ COPY . .
 EXPOSE 2000
 
 # รัน FastAPI ด้วย Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "2000"]
