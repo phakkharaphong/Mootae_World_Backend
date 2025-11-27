@@ -44,6 +44,9 @@ app = FastAPI(
             "name": "Apache 2.0",
             "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
         },
+        ocs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json"
 )
 
 
