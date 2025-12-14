@@ -1,0 +1,2 @@
+python -m alembic revision --autogenerate -m "PLACE MIGRATION NAME HERE"
+python -m alembic upgrade head
