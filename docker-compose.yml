@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: ./Dockerfile
     environment:
+      DB_URL: "postgresql+psycopg2://postgres:FC%25qU%5BScjz8%23OE%26R@172.17.0.1:5432/mootae_world"
+      API_DOC: "true"
       NODE_ENV: production
     env_file:
       - .env
