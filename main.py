@@ -16,7 +16,24 @@ from app.features.user.router import router as user_router
 
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+app = FastAPI(
+    title="Mootae World API Doccument",
+        description="This is a API Docuemtn Project Mootae World API.",
+        version="1.0.0",
+        contact={
+            "name": "API Support",
+            "url": "http://example.com/contact",
+            "email": "phakkharaphong.c@kkumail.com",
+        },
+        license_info={
+            "name": "Apache 2.0",
+            "url": "https://www.apache.org/licenses/LICENSE-2.0.html",
+        },
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
+        root_path="/mootae_world_backend"
+)
 
 app.include_router(blog_router)
 app.include_router(blog_homepage_router)
