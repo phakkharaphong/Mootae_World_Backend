@@ -8,6 +8,7 @@ from alembic import context
 from app.adapters.db_adapter import get_database_url
 from app.core.database import Base
 
+from app.features.attachment.model import Attachment
 from app.features.blog.model import Blog
 from app.features.blog_homepage.model import BlogHomepage
 from app.features.category.model import Category

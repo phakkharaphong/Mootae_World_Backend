@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from app.core.database import Base, engine
+from app.features.attachment.router import router as attachment_router
 from app.features.blog.router import router as blog_router
 from app.features.blog_homepage.router import router as blog_homepage_router
 from app.features.category.router import router as category_router
@@ -35,6 +36,7 @@ app = FastAPI(
     root_path="/mootae_world_backend",
 )
 
+app.include_router(attachment_router)
 app.include_router(blog_router)
 app.include_router(blog_homepage_router)
 app.include_router(category_router)
