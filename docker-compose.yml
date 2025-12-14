@@ -7,7 +7,7 @@ services:
     environment:
       NODE_ENV: production
     env_file:
-      - .env
+      - ./environment/.env
     ports:
       - 2000:8000
     restart: always
