@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import Base, engine
 from app.features.attachment.router import router as attachment_router
 from app.features.blog.router import router as blog_router
@@ -36,16 +37,30 @@ app = FastAPI(
     root_path="/mootae_world_backend",
 )
 
-app.include_router(attachment_router)
-app.include_router(blog_router)
-app.include_router(blog_homepage_router)
-app.include_router(category_router)
-app.include_router(footer_website_router)
-app.include_router(location_router)
-app.include_router(order_router)
-app.include_router(order_type_router)
-app.include_router(promotion_router)
-app.include_router(role_router)
-app.include_router(slide_activity_router)
-app.include_router(slide_news_router)
-app.include_router(user_router)
+origins = ["*"] 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+api_router = APIRouter(prefix="/api/v1")
+
+api_router.include_router(attachment_router)
+api_router.include_router(blog_router)
+api_router.include_router(blog_homepage_router)
+api_router.include_router(category_router)
+api_router.include_router(footer_website_router)
+api_router.include_router(location_router)
+api_router.include_router(order_router)
+api_router.include_router(order_type_router)
+api_router.include_router(promotion_router)
+api_router.include_router(role_router)
+api_router.include_router(slide_activity_router)
+api_router.include_router(slide_news_router)
+api_router.include_router(user_router)
+
+app.include_router(api_router)
