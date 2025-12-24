@@ -52,6 +52,40 @@ class PromotionGetDto(BaseModel):
     }
 
 
+class PromotionGetOrderDto(BaseModel):
+    
+    promocode: str | None = Field(
+        description="Promotion Code Format", 
+        default="TE001"
+    )
+    
+    promotion_title: str | None = Field(
+        description="promotion title", 
+        default="ส่วนลดตุรษจีน"
+    )
+    
+    start_date: date | None = Field(
+        description="Start Date", 
+        default=date(2025, 8, 15)
+    )
+    
+    end_date: date | None = Field(
+        description="end Date", 
+        default=date(2025, 8, 15)
+    )
+    
+    discount: float | None = Field(
+        description="discount", 
+        default=580.00
+    )
+    
+    
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 class PromotionCreateDto(BaseModel):
     promocode: Optional[str] | None = Field(
         description="Promotion Code Format", 

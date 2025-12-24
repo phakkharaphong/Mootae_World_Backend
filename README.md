@@ -13,6 +13,8 @@ alembic revision --autogenerate -m "create tables"
 
 ## Upgrade And dowgrade Table
 
+python -m alembic upgrade head
+
 alembic upgrade head / alembic downgrade base
 
 alembic revision --autogenerate -m "message"

@@ -1,5 +1,6 @@
 from sqlalchemy import Boolean, Column, Date, DateTime, Numeric, String
 from app.core.database import Base
+from sqlalchemy.orm import relationship
 
 
 class Promotion(Base):
@@ -19,3 +20,5 @@ class Promotion(Base):
     created_by = Column(String(50), index=True)
     updated_at = Column(DateTime)
     updated_by = Column(String(50), index=True)
+
+    orders = relationship("Order", back_populates="promotion")

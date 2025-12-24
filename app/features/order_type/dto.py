@@ -39,6 +39,29 @@ class OrderTypeGetDto(BaseModel):
     }
 
 
+class OrderTypeGetJoinDto(BaseModel):
+    id: str = Field(
+        description="order_type id", 
+        default="EXasfew565d2"
+    )
+    
+    type_name: str | None = Field(
+        description="type_name name", 
+        default="Collection 1"
+    )
+    
+    price: float | None = Field(
+        description="price", 
+        default=580.00
+    )
+    
+    is_active: bool | None = None
+
+    model_config = {
+        "from_attributes": True
+    }
+
+
 class OrderTypeCreateDto(BaseModel):
     type_name: str | None = Field(
         description="type_name name", 

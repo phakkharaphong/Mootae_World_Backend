@@ -14,7 +14,7 @@ def find_all(db: Session, page: int = 0, limit: int = 100):
     offset = (page - 1) * limit
     rows = (
         db.query(Order)
-        .options(joinedload(Order.order_type))
+        .options(joinedload(Order.order_type),joinedload(Order.promotion))
         .offset(offset)
         .limit(limit)
         .all()
@@ -57,38 +57,108 @@ def find_by_id(db: Session, id: str):
 
 
 def create(db: Session, order: OrderCreateDto):
+    day_score = 0
+    month_score = 0
+    zodiac_score = 0
     if not order:
         raise HTTPException(status_code=400, detail="Invalid order data")
+    match (order.birth_date_customer):
+         case ("Sunday"):
+            day_score = 1
+         case ("Monday"):
+            day_score = 2
+         case ("Tuesday"):
+            day_score = 3
+         case ("Wednesday"):
+            day_score = 4
+         case ("Thursday"):
+            day_score = 5
+         case ("Friday"):
+            day_score = 6
+         case ("Saturday"):
+           day_score = 7
+         case _:
+           day_score = 0
 
+    match order.birth_month_customer:
+         case ("November"):
+            month_score = 1
+         case ("December"):
+            month_score = 2
+         case ("January"):
+            month_score = 3
+         case ("February"):
+            month_score = 4
+         case ("March"):
+            month_score = 5
+         case ("April"):
+            month_score = 6
+         case ("May"):
+           month_score = 7
+         case ("June"):
+           month_score = 1
+         case ("July"):
+           month_score = 2
+         case ("August"):
+           month_score = 3
+         case ("September"):
+           month_score = 4
+         case ("October"):
+           month_score = 5
+         case _:
+           month_score = 0
+
+    match order.zodiac_customer:
+       case ("Rat"):
+          zodiac_score = 1
+       case ("Ox"):
+          zodiac_score = 2
+       case ("Tiger"):
+          zodiac_score = 3
+       case ("Rabbit"):
+          zodiac_score = 4
+       case ("Dragon"):
+          zodiac_score = 5
+       case ("Snake"):
+          zodiac_score = 6
+       case ("Horse"):
+          zodiac_score = 7
+       case ("Goat"):
+          zodiac_score = 1
+       case ("Monkey"):
+          zodiac_score = 2
+       case ("Rooster"):
+          zodiac_score = 3
+       case ("Dog"):
+          zodiac_score = 4
+       case ("Pig"):
+          zodiac_score = 5
+       case _:
+          zodiac_score = 0
     thai_timezone = pytz.timezone("Asia/Bangkok")
     length = 50
     random_string = "".join(
         random.choices(string.ascii_letters + string.digits, k=length)
     )
+   
 
     new_order = Order(
         id=random_string,
         order_type_id=order.order_type_id,
-        emphasize_particular=order.emphasize_particular,
-        supplement=order.supplement,
-        supplement_other=order.supplement_other,
-        birth_date_idol=order.birth_date_idol,
-        services_zodiac=order.services_zodiac,
-        services_auspicious=order.services_auspicious,
         first_name_customer=order.first_name_customer,
         last_name_customer=order.last_name_customer,
-        birth_date_customer=order.birth_date_customer,
-        birth_time_customer=order.birth_time_customer,
-        gender=order.gender,
-        lgbt_description=order.lgbt_description,
-        congenital_disease=order.congenital_disease,
-        phone=order.phone,
         email=order.email,
+        phone=order.phone,
+        congenital_disease=order.congenital_disease,
         note=order.note,
-        newsletter=order.newsletter,
-        read_accept_pdpa=order.read_accept_pdpa,
+        birth_date_customer=order.birth_date_customer,
+        birth_month_customer=order.birth_month_customer,
+        zodiac_customer = order.zodiac_customer,
         promotion_id=order.promotion_id,
         total_price=order.total_price,
+        birth_date_customer_number = day_score,
+        birth_month_customer_number = month_score,
+        zodiac_customer_number = zodiac_score,
         payment_status=order.payment_status,
         send_wallpaper_status=order.send_wallpaper_status,
         is_active=True,
@@ -119,24 +189,16 @@ def update_by_id(db: Session, id: str, order: OrderUpdateDto):
     order_dict = {
         "id": response.id,
         "order_type_id": response.order_type_id,
-        "emphasize_particular": response.emphasize_particular,
-        "supplement": response.supplement,
-        "supplement_other": response.supplement_other,
-        "birth_date_idol": response.birth_date_idol,
-        "services_zodiac": response.services_zodiac,
-        "services_auspicious": response.services_auspicious,
         "first_name_customer": response.first_name_customer,
         "last_name_customer": response.last_name_customer,
         "birth_date_customer": response.birth_date_customer,
-        "birth_time_customer": response.birth_time_customer,
+        "birth_month_customer": response.birth_month_customer,
+        "zodiac_customer": response.zodiac_customer,
         "gender": response.gender,
-        "lgbt_description": response.lgbt_description,
         "congenital_disease": response.congenital_disease,
         "phone": response.phone,
         "email": response.email,
         "note": response.note,
-        "newsletter": response.newsletter,
-        "read_accept_pdpa": response.read_accept_pdpa,
         "promotion_id": response.promotion_id,
         "total_price": response.total_price,
         "payment_status": response.payment_status,
