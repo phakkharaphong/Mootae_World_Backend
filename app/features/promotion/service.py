@@ -33,7 +33,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="promotion not found")
         promotion_get_dto = PromotionGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=promotion_get_dto)
+        return promotion_get_dto
 
 
 def create(db: Session, promotion: PromotionCreateDto):

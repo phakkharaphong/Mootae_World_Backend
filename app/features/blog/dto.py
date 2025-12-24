@@ -25,7 +25,7 @@ class BlogGetDto(BaseModel):
     is_active: bool | None = None
 
     created_at: datetime = Field(
-        description="Created time", default_factory=datetime.now()
+        description="Created time", default_factory=datetime.now
     )
 
     created_by: str = Field(description="created by", default="Admin")

@@ -53,7 +53,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="order not found")
         order_get_dto = OrderGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=order_get_dto)
+        return order_get_dto
 
 
 def create(db: Session, order: OrderCreateDto):

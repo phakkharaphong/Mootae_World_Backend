@@ -32,7 +32,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="blog not found")
         blog_home_page_dto = BlogHomePageGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=blog_home_page_dto)
+        return blog_home_page_dto
 
 
 def create(db: Session, blog_home_page: BlogHomePageCreateDto):

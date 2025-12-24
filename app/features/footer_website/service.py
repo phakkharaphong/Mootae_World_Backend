@@ -32,7 +32,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="footer website not found")
         footer_website_get_dto = FooterWebsiteGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=footer_website_get_dto)
+        return footer_website_get_dto
 
 
 def create(db: Session, footer_website: FooterWebsiteCreateDto):

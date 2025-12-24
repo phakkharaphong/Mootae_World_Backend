@@ -45,7 +45,7 @@ def find_by_id(db: Session, id: str):
         db.commit()
         db.refresh(response)
         blog_get_dto = BlogGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=blog_get_dto)
+        return blog_get_dto
 
 
 def create(db: Session, blog: BlogCreateDto):
@@ -66,7 +66,7 @@ def create(db: Session, blog: BlogCreateDto):
         view=0,
         like=0,
         category_id=blog.category_id,
-        is_active=True,
+        is_active=blog.is_active,
         created_at=datetime.now(thai_timezone),
         created_by=blog.created_by,
     )
@@ -74,7 +74,7 @@ def create(db: Session, blog: BlogCreateDto):
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
-    
+
     created_dto = BlogGetDto.model_validate(new_blog)
     return ResponseModel(status=201, message="Created success", data=created_dto)
 
@@ -118,4 +118,4 @@ def delete_by_id(db: Session, id: str):
     db.delete(response)
     db.commit()
 
-    return ResponseModel(status=200, message="Deleted success", data={"id": id})
+    return ResponseModel(status=200, message="Deleted success", data=id)

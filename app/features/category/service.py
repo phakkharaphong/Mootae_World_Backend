@@ -32,7 +32,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="category not found")
         category_get_dto = CategoryGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=category_get_dto)
+        return category_get_dto
 
 
 def create(db: Session, category: CategoryCreateDto):
@@ -48,7 +48,7 @@ def create(db: Session, category: CategoryCreateDto):
     new_category = Category(
         id=random_string,
         name=category.name,
-        is_active=True,
+        is_active=category.is_active,
         created_at=datetime.now(thai_timezone),
         created_by=category.created_by,
     )
@@ -88,6 +88,7 @@ def update_by_id(db: Session, id: str, category: CategoryUpdateDto):
 
 
 def delete_by_id(db: Session, id: str):
+    print(id)
     response = db.query(Category).filter(Category.id == id).first()
     if not response:
         raise HTTPException(status_code=404, detail="category not found")
@@ -95,4 +96,4 @@ def delete_by_id(db: Session, id: str):
     db.delete(response)
     db.commit()
 
-    return ResponseModel(status=200, message="Deleted success", data={"id": id})
+    return ResponseModel(status=200, message="Deleted success", data=id)

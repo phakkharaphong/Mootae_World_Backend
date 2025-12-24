@@ -32,7 +32,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="order type not found")
         order_type_get_dto = OrderTypeGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=order_type_get_dto)
+        return order_type_get_dto
 
 
 def create(db: Session, order_type: OrderTypeCreateDto):

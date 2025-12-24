@@ -32,7 +32,7 @@ def find_by_id(db: Session, id: str):
         if not response:
             raise HTTPException(status_code=404, detail="slide activity not found")
         slide_activity_get_dto = SlideNewGetDto.model_validate(vars(response))
-        return ResponseModel(status=200, message="success", data=slide_activity_get_dto)
+        return slide_activity_get_dto
 
 
 def create(db: Session, slide_news: SlideNewCreateDto):
