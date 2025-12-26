@@ -26,7 +26,7 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     with path.open("wb") as f:
         shutil.copyfileobj(file.file, f)
 
-    file_url = f"{request.base_url}uploads/files/{filename}"
+    file_url = f"{request.base_url}uploads/{filename}"
 
     return {
         "filename": filename,
