@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
@@ -85,9 +85,12 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     tags=["user"],
     summary="Login for access token",
 )
-def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
-    user = db.query(User).where(User.username == login.username).first()
-    if not user or not verify_password(login.password, user.password):
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).where(User.username == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
