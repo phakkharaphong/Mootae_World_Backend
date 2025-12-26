@@ -71,33 +71,27 @@ class BlogGetDto(BaseModel):
 
 class BlogCreateDto(BaseModel):
     title: str | None = Field(
-        description="title article", 
-        default="ดวงคุณเป็นอย่างไรบ้างวันนี้"
+        description="title article",
     )
 
     cover_img: str | None = Field(
-        description="cover img", 
-        default="path/test/img.png"
+        description="cover img",
     )
 
     content: str | None = Field(
-        description="content", 
-        default="test\ntest\ntest\n"
+        description="content",
     )
 
     category_id: str | None = Field(
         description="blog category id",
-        default="ynuJ2S1LDMNd4VVYLpIM0GZbMzlZz2A4fFH3gyxennX1Y0pR5e",
     )
 
     created_by: str | None = Field(
         description="created By",
-        default="System"
     )
 
     is_active: bool | None = Field(
-        description="Is Active Blog", 
-        default=True
+        description="Is Active Blog",
     )
 
 
