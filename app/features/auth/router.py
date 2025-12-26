@@ -11,7 +11,7 @@ from app.features.user.dto import UserGetDto
 from app.features.user.model import User
 from app.utils.password import verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/muteverse/api/v1/auth/login")
 
 
 router = APIRouter(
