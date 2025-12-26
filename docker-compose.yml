@@ -14,4 +14,4 @@ services:
       - 2000:8000
     restart: always
     volumes:
-      - ./public:/usr/src/app/public
+      - ./uploads:/app/uploads
