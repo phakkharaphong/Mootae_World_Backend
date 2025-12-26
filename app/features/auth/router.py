@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import APIKeyHeader
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from app.features.user.dto import UserGetDto
 from app.features.user.model import User
 from app.utils.password import verify_password
 
-api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+http_bearer = HTTPBearer(auto_error=False)
 
 
 router = APIRouter(
@@ -21,27 +21,44 @@ router = APIRouter(
 
 
 def get_current_user(
-    token: str = Depends(api_key_header),
+    credentials: HTTPAuthorizationCredentials | None = Depends(http_bearer),
     db: Session = Depends(get_db),
 ):
-    if not token:
+    if not credentials or not credentials.credentials:
+        print("no bearer credentials provided")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="HTTP_401_UNAUTHORIZED",
         )
-    
+    if credentials.scheme.lower() != "bearer":
+        print(f"unsupported auth scheme: {credentials.scheme}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unsupported auth scheme",
+        )
+
+    token_value = credentials.credentials.strip()
+    if token_value.count(".") != 2:
+        print("malformed JWT: not enough segments")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Malformed JWT token",
+        )
+
     try:
         payload = jwt.decode(
-            token,
+            token_value,
             settings.ACCESS_TOKEN_SECRET_KEY,
             algorithms=[settings.HASHING_ALGORITHM],
         )
         username: str | None = payload.get("sub")
         if username is None:
+            print("username not found in token")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Token payload invalid"
             )
-    except JWTError:
+    except JWTError as w:
+        print(f"JWTError during token decode: {w}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
@@ -107,7 +124,6 @@ def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": user.username})
 
     return TokenDto(access_token=access_token, token_type="bearer")
-
 
 
 @router.get(
