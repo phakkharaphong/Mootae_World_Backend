@@ -1,5 +1,6 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from datetime import datetime, timezone
+import uuid
+from sqlalchemy import UUID, Boolean, Column, DateTime, String
 
 from app.core.database import Base
 
@@ -7,25 +8,24 @@ from app.core.database import Base
 class User(Base):
     __tablename__ = "user"
 
-    id = Column(String(50), primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    username = Column(String(100), index=True)
-    password = Column(String(100), index=True)
-    f_name = Column(String(100), index=True)
-    l_name = Column(String(100), index=True)
-    phone = Column(String(20), index=True)
-    img_profile = Column(String(50), index=True)
-    address = Column(String, index=True)
-    following = Column(Integer, index=True)
-    keep_following = Column(Integer, index=True)
+    username = Column(String(100), index=True, unique=True, nullable=False)
+    password = Column(String(100), nullable=False)
+    f_name = Column(String(100), index=True, nullable=False)
+    l_name = Column(String(100), index=True, nullable=False)
+    phone = Column(String(20))
+    img_profile = Column(String(50))
+    address = Column(String)
+    is_admin = Column(Boolean)
 
-    role_id = Column(String(50), ForeignKey("role.id"))
+    is_active = Column(Boolean)
 
-    is_active = Column(Boolean, index=True)
-
-    created_at = Column(DateTime)
-    created_by = Column(String(50), index=True)
-    updated_at = Column(DateTime)
-    updated_by = Column(String(50), index=True)
-
-    role = relationship("Role", back_populates="users")
+    created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+    created_by = Column(String(50))
+    updated_at = Column(
+        DateTime(timezone=True),
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
+    )
+    updated_by = Column(String(50))

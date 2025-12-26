@@ -10,10 +10,10 @@ from app.features.location.router import router as location_router
 from app.features.order.router import router as order_router
 from app.features.order_type.router import router as order_type_router
 from app.features.promotion.router import router as promotion_router
-from app.features.role.router import router as role_router
 from app.features.slide_activity.router import router as slide_activity_router
 from app.features.slide_news.router import router as slide_news_router
 from app.features.user.router import router as user_router
+from app.features.auth.router import router as auth_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -37,7 +37,7 @@ app = FastAPI(
     root_path="/mootae_world_backend",
 )
 
-origins = ["*"] 
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
@@ -58,9 +58,9 @@ api_router.include_router(location_router)
 api_router.include_router(order_router)
 api_router.include_router(order_type_router)
 api_router.include_router(promotion_router)
-api_router.include_router(role_router)
 api_router.include_router(slide_activity_router)
 api_router.include_router(slide_news_router)
 api_router.include_router(user_router)
+api_router.include_router(auth_router)
 
 app.include_router(api_router)

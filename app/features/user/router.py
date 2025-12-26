@@ -1,18 +1,21 @@
+from uuid import UUID
 from fastapi import APIRouter, HTTPException, status
 from fastapi.params import Depends
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
-from app.features.user.dto import LoginDto, TokenDto, UserCreateDto, UserGetDto
+from app.features.user.dto import UserCreateDto, UserGetDto, UserUpdateDto
+from app.features.user.error import UserAlreadyExistsError, UserNotFoundError
 from app.features.user.service import (
-    create_access_token,
+    UserSortField,
     find_all,
     find_by_id,
     create,
     delete_by_id,
-    get_username,
+    update,
 )
-from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.response import PaginatedResponse
+from app.utils.sort import SortOrder
 
 
 router = APIRouter(
@@ -27,8 +30,24 @@ router = APIRouter(
     tags=["user"],
     summary="Find User",
 )
-async def get_all_user(page: int = 1, limit: int = 100, db: Session = Depends(get_db)):
-    return find_all(db, page, limit)
+async def get_all_user(
+    search: str | None = None,
+    sort_by: UserSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    is_active: bool | None = None,
+    page: int = 1,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    return find_all(
+        db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get(
@@ -37,54 +56,56 @@ async def get_all_user(page: int = 1, limit: int = 100, db: Session = Depends(ge
     tags=["user"],
     summary="Find User by id",
 )
-async def get_user_by_id(id: str, db: Session = Depends(get_db)):
-    return find_by_id(db, id)
-
-
-# @router.get(
-#     "/me",
-#     response_model=UserGetDto,
-#     tags=["user"],
-#     summary="Get current user",
-# )
-# async def get_current_user(current_user: UserGetDto = Depends(get_username)):
-#     return current_user
-
-
-@router.post(
-    "/token",
-    response_model=TokenDto,
-    tags=["user"],
-    summary="Create Token",
-)
-async def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
-    user = get_username(db, login.username, login.password)
+async def get_user_by_id(id: UUID, db: Session = Depends(get_db)):
+    user = find_by_id(db, id)
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
         )
-
-    access_token = create_access_token(data={"sub": user.username})
-    return TokenDto(access_token=access_token, token_type="bearer")
+    return user
 
 
 @router.post(
     "/",
-    response_model=ResponseModel,
     tags=["user"],
     summary="Create User",
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_user(user: UserCreateDto, db: Session = Depends(get_db)):
-    return create(db, user)
+    try:
+        create(db, user)
+    except UserAlreadyExistsError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="User already exists"
+        )
+
+
+@router.put(
+    "/{id}",
+    tags=["user"],
+    summary="Update User",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def update_user(id: str, user: UserUpdateDto, db: Session = Depends(get_db)):
+    try:
+        update(db, id, user)
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
 
 @router.delete(
     "/{id}",
-    response_model=ResponseDeleteModel,
     tags=["user"],
     summary="Delete User",
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_user(id: str, db: Session = Depends(get_db)):
-    return delete_by_id(db, id)
+    try:
+        delete_by_id(db, id)
+    except UserNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )

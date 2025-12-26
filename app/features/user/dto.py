@@ -1,25 +1,25 @@
-from typing import List
+from uuid import UUID
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class UserGetDto(BaseModel):
-    id: str | None = Field(
-        description="UID User", 
-        default="EXasfew565d2"
+    id: UUID = Field(
+        description="User ID", 
+        default="3fa85f64-5717-4562-b3fc-2c963f66afa6"
     )
     
-    username: str | None = Field(
+    username: str = Field(
         description="Username User", 
         default="Admin01"
     )
     
-    f_name: str | None = Field(
+    f_name: str = Field(
         description="First Name", 
         default="Phakkharaphong"
     )
     
-    l_name: str | None = Field(
+    l_name: str = Field(
         description="Last Name",
         default="Charoenphon"
     )
@@ -39,152 +39,41 @@ class UserGetDto(BaseModel):
         default="test address"
     )
     
-    following: int | None = Field(
-        description="Number of Following"
+    is_admin: bool | None = Field(
+        description="Is Admin User", 
+        default=True
     )
     
-    keep_following: int | None = Field(
-        description="Number of Keep Following"
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
     )
     
-    role_id: str | None = Field(
-        description="Role ID",
-        default="EXasfew565d2"
+    created_at: datetime | None = Field(
+        description="Created time", 
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     
-    is_active: bool | None = None
+    created_by: str | None = Field(
+        description="Created by User", 
+        default="System"
+    )
+    
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
     
     model_config = {
         "from_attributes": True
     }
     
 class UserCreateDto(BaseModel):
-    username: str | None = Field(
-        description="Username User", 
-        default="Admin01"
-    )
-    
-    password: str | None = Field(
-        description="Password", 
-        default="test"
-    )
-    
-    f_name: str | None = Field(
-        description="First Name", 
-        default="Phakkharaphong"
-    )
-    
-    l_name: str | None = Field(
-        description="Last Name", 
-        default="Charoenphon"
-    )
-    
-    phone: str | None = Field(
-        description="Phone Number", 
-        default="0876197982"
-    )
-    
-    img_profile: str | None = Field(
-        description="Profile",
-    )
-    
-    address: str | None = Field(
-        description="Address",
-    )
-    
-    following: int | None = Field(
-        description="following"
-    )
-    
-    keep_following: int | None = Field(
-        description="keep_following"
-    )
-    
-    role_id: str = Field(
-        description="Role ID", 
-        default="EXasfew565d2"
-    )
-    
-    is_active: bool | None = None
-    
-    created_at: datetime = Field(
-        description="Created time", 
-        default_factory=datetime.now
-    )
-    
-    model_config = {
-        "from_attributes": True
-    }
-
-class UserUpdateDto(BaseModel):
-    username: str | None = Field(
-        description="Username User", 
-        default="Admin01"
-    )
-    
-    f_name: str | None = Field(
-        description="First Name", 
-        default="Phakkharaphong"
-    )
-    
-    l_name: str | None = Field(
-        description="Last Name", 
-        default="Charoenphon"
-    )
-    
-    phone: str | None = Field(
-        description="Phone Number", 
-        default="0876197982"
-    )
-    
-    img_profile: str | None = Field(
-        description="Profile",
-    )
-    
-    address: str | None = Field(
-        description="Address",
-    )
-    
-    following: int | None = Field(
-        description="following"
-    )
-    
-    keep_following: int | None = Field(
-        description="keep_following"
-    )
-    
-    role_id: str = Field(
-        description="Role ID", 
-        default="EXasfew565d2"
-    )
-    
-    is_active: bool | None = None
-    
-    updated_at: datetime = Field(
-        description="Updated time", 
-        default_factory=datetime.now
-    )
-    
-    model_config = {
-        "from_attributes": True
-    }
-    
-class TokenDto(BaseModel):
-    access_token: str = Field(
-        description="Access Token"
-    )
-    
-    token_type: str = Field(
-        description="Token Type",
-        default="bearer"
-    )
-
-class AccessTokenDto(BaseModel):
-    access_token: str = Field(
-        description="Access Token"
-    )
-    
-class LoginDto(BaseModel):
     username: str = Field(
         description="Username User", 
         default="Admin01"
@@ -194,10 +83,80 @@ class LoginDto(BaseModel):
         description="Password", 
         default="test"
     )
+    
+    f_name: str = Field(
+        description="First Name", 
+        default="Phakkharaphong"
+    )
+    
+    l_name: str = Field(
+        description="Last Name", 
+        default="Charoenphon"
+    )
+    
+    phone: str | None = Field(
+        description="Phone Number", 
+        default="0876197982"
+    )
+    
+    img_profile: str | None = Field(
+        description="Profile",
+    )
+    
+    address: str | None = Field(
+        description="Address",
+    )
+    
+    is_admin: bool | None = Field(
+        description="Is Admin User", 
+        default=True
+    )
+    
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
+    )
+    
+    model_config = {
+        "from_attributes": True
+    }
 
-class UserResponse(BaseModel):
-    page: int
-    limit: int
-    total: int
-    message: str
-    Data: List[UserGetDto]
+class UserUpdateDto(BaseModel):    
+    f_name: str | None = Field(
+        description="First Name", 
+        default="Phakkharaphong"
+    )
+    
+    l_name: str | None = Field(
+        description="Last Name", 
+        default="Charoenphon"
+    )
+    
+    phone: str | None = Field(
+        description="Phone Number", 
+        default="0876197982"
+    )
+    
+    img_profile: str | None = Field(
+        description="Profile",
+        default="QgIBYWLvHfSJNZTVj8gC29zxv91lb8jKKP8pjirq7yVMg81Isa",
+    )
+    
+    address: str | None = Field(
+        description="Address",
+        default="Room 101, 1st Floor, ABC Building, 123 Moo 4, Sukhumvit Road, Bangna, Bangkok 10260",
+    )
+    
+    is_admin: bool | None = Field(
+        description="Is Admin User", 
+        default=True
+    )
+    
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
+    )
+    
+    model_config = {
+        "from_attributes": True
+    }
