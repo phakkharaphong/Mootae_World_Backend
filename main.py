@@ -34,7 +34,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
-    root_path="/mootae_world_backend",
+    root_path="/muteverse",
 )
 
 origins = ["*"]
