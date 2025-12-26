@@ -15,7 +15,7 @@ class User(Base):
     f_name = Column(String(100), index=True, nullable=False)
     l_name = Column(String(100), index=True, nullable=False)
     phone = Column(String(20))
-    img_profile = Column(String(50))
+    img_profile = Column(String(255))
     address = Column(String)
     is_admin = Column(Boolean)
 

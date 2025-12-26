@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     HASHING_ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
-    UPLOAD_DIR: str = str(Path(__file__).resolve().parents[2] / "uploads")
+    UPLOAD_DIR: str = "uploads"
 
     class Config:
         env_file = ".env"
