@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import APIKeyHeader
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from app.features.user.dto import UserGetDto
 from app.features.user.model import User
 from app.utils.password import verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/muteverse/api/v1/auth/login")
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
 router = APIRouter(
@@ -88,15 +88,12 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @router.post(
     "/login",
     response_model=TokenDto,
-    tags=["auth"],
+    tags=["user"],
     summary="Login for access token",
 )
-def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-):
-    user = db.query(User).where(User.username == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.password):
+def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
+    user = db.query(User).where(User.username == login.username).first()
+    if not user or not verify_password(login.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -110,6 +107,7 @@ def login_for_access_token(
     access_token = create_access_token(data={"sub": user.username})
 
     return TokenDto(access_token=access_token, token_type="bearer")
+
 
 
 @router.get(
