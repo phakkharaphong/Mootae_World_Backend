@@ -19,7 +19,7 @@ class AttachmentGetDto(BaseModel):
     
     fileLocation: str | None = Field(
         description="Path File for Upload",
-        default="UploadedFiles/download.pdf"
+        default="uploads/download.pdf"
     )
     
     fileSize: int | None = Field(
@@ -48,7 +48,7 @@ class AttachmentCreateDto(BaseModel):
     
     fileLocation: str | None = Field(
         description="Path File for Upload",
-        default="UploadedFiles/download.pdf"
+        default="uploads/download.pdf"
     )
     
     fileSize: int | None = Field(

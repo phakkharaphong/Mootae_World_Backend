@@ -1,8 +1,7 @@
 from datetime import datetime
-import random
-import shutil
-import string
-from fastapi import APIRouter, Depends, UploadFile, HTTPException
+from pathlib import Path
+import uuid
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 import pytz
 from requests import Session
 
@@ -11,6 +10,10 @@ from app.features.attachment.dto import AttachmentCreateDto, AttachmentGetDto
 from app.features.attachment.model import Attachment
 from app.features.attachment.service import create
 from app.utils.response import ResponseModel
+from app.core.config import settings
+
+UPLOAD_DIR = Path(settings.UPLOAD_DIR)
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 router = APIRouter(
@@ -31,61 +34,46 @@ async def create_attachment(
     return create(db, attachment)
 
 
-@router.post(
-        "/uploadfile/",
-        tags=["attachment"],
-        summary="Uploadfile"
-        )
-async def create_upload_file(file: UploadFile, db: Session = Depends(get_db)):
-    try:
-        file_location = f"./app/Upload/{file.filename}"
+@router.post("/upload", status_code=201)
+async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+    if file.content_type not in {"image/png", "image/jpeg"}:
+        raise HTTPException(400, "Invalid file type")
 
-    # Save the file
-        with open(file_location, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+    ext = Path(file.filename).suffix
+    filename = f"{uuid.uuid4()}{ext}"
+    path = UPLOAD_DIR / filename
 
-    except Exception as e:
-       return {"message": f"There was an error uploading the file: {e}"}
-    finally:
-        if not file:
-            raise HTTPException(status_code=400, detail="Invalid attachment data")
+    with path.open("wb") as f:
+        while chunk := await file.read(1024 * 1024):
+            f.write(chunk)
 
-        thai_timezone = pytz.timezone("Asia/Bangkok")
-        length = 50
-        random_string = "".join(
-            random.choices(string.ascii_letters + string.digits, k=length)
-        )
+    new_attachment = Attachment(
+        id=str(uuid.uuid4()),
+        fileName=file.filename,
+        content_type=file.content_type,
+        fileLocation=str(path),
+        fileSize=path.stat().st_size,
+        mime=ext,
+        created_at=datetime.now(pytz.timezone("Asia/Bangkok")),
+        created_by="System",
+    )
 
-        new_attachment = Attachment(
-            id=random_string,
-            fileName=file.filename,
-            content_type=file.content_type,
-            fileLocation= file_location,
-            fileSize=file.size,
-            # mime=attachment.mime,
-            created_at=datetime.now(thai_timezone),
-            created_by="Admin01",
-        )
-        db.add(new_attachment)
-        db.commit()
-        db.refresh(new_attachment)
-
-        created_dto = AttachmentGetDto.model_validate(new_attachment)
-
-        file.file.close()
+    db.add(new_attachment)
+    db.commit()
+    db.refresh(new_attachment)
 
     return {
-        "message": "File uploaded successfully!", 
-        "filename": file.filename,
-        "file_Size": file.size,
-        "file_content_type":file.content_type, 
-        "file_headers": file.headers
-        }
+        "original_name": file.filename,
+        "stored_name": filename,
+        "content_type": file.content_type,
+        "path": str(path),
+    }
 
-router.get(
-    "/{id}",
-    tags=["attachment"],
-    summary="Get detail file"
-)
-async def getDetailFile(id: str):
-    print(id)
+
+@router.get("/{id}", tags=["attachment"], summary="Get detail file")
+async def get_attachment(id: str, db: Session = Depends(get_db)):
+    attachment = db.query(Attachment).filter(Attachment.id == id).first()
+    if not attachment:
+        raise HTTPException(404, "Attachment not found")
+    attachment_dto = AttachmentGetDto.model_validate(vars(attachment))
+    return ResponseModel(status=200, message="Success", data=attachment_dto)

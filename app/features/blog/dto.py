@@ -34,7 +34,7 @@ class BlogGetDto(BaseModel):
         default=10
     )
 
-    category_id: str = Field(
+    category_id: UUID = Field(
         description="blog category id",
         default="ynuJ2S1LDMNd4VVYLpIM0GZbMzlZz2A4fFH3gyxennX1Y0pR5e",
     )
