@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
-
+from uuid import UUID
 
 class BlogHomePageGetDto(BaseModel):
-    id: str | None = Field(
+    id: UUID | None = Field(
         description="blog home page", 
         default="EXasfew565d2"
     )
@@ -28,21 +28,31 @@ class BlogHomePageGetDto(BaseModel):
         default="img/test/filename.png"
     )
     
-    is_active: bool | None = None
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
+    )
     
-    created_at: datetime = Field(
+    created_at: datetime | None = Field(
         description="Created time", 
-        default_factory=datetime.now
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     
-    created_by: str = Field(
-        description="created by", 
-        default="Admin"
+    created_by: str | None = Field(
+        description="Created by User", 
+        default="System"
     )
     
-    updated_at: datetime | None = None
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     
-    updated_by: str | None = None
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
+
 
     model_config = {
         "from_attributes": True
@@ -71,16 +81,6 @@ class BlogHomePageCreateDto(BaseModel):
     )
     
     is_active: bool | None = None
-    
-    created_at: datetime = Field(
-        description="Created time", 
-        default_factory=datetime.now
-    )
-    
-    created_by: str = Field(
-        description="created by", 
-        default="Admin"
-    )
 
     model_config = {
         "from_attributes": True
@@ -110,16 +110,6 @@ class BlogHomePageUpdateDto(BaseModel):
     
     is_active: bool | None = None
     
-    updated_at: datetime = Field(
-        description="update time", 
-        default_factory=datetime.now
-    )
-    
-    updated_by: str = Field(
-        description="update by", 
-        default="Admin"
-    )
-
     model_config = {
         "from_attributes": True
     }

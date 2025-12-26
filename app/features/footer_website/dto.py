@@ -1,15 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 
 class FooterWebsiteGetDto(BaseModel):
-    id: str | None = Field(
-        description="role id", 
+    id: UUID | None = Field(
+        description="Footer id", 
         default="EXasfew565d2"
     )
     
-    title: Optional[str] | None = Field(
+    title: str | None = Field(
         description="title icon", 
         default="วอลเปเปอร์เสริมดวง"
     )
@@ -24,22 +25,30 @@ class FooterWebsiteGetDto(BaseModel):
         default="www.example.com"
     )
     
-    is_active: bool | None = None
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
+    )
     
     created_at: datetime | None = Field(
         description="Created time", 
-        default_factory=datetime.now
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     
-    created_by: Optional[str] | None = Field(
-        description="created by", 
-        default="Admin"
-    
+    created_by: str | None = Field(
+        description="Created by User", 
+        default="System"
     )
     
-    updated_at: datetime | None = None
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     
-    updated_by: Optional[str] | None = None
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
 
     model_config = {
         "from_attributes": True
@@ -47,32 +56,26 @@ class FooterWebsiteGetDto(BaseModel):
 
 
 class FooterWebsiteCreateDto(BaseModel):
-    title: Optional[str] | None = Field(
+    title: str | None = Field(
         description="title icon",
         default="วอลเปเปอร์เสริมดวง"
     )
     
-    icon_img: Optional[str] | None = Field(
+    icon_img: str | None = Field(
         description="icon img", 
         default="img/test.png"
     )
     
-    link_ref: Optional[str] | None = Field(
+    link_ref: str | None = Field(
         description="link ref", 
         default="www.example.com"
     )
     
-    is_active: bool | None = None
-    
-    created_at: datetime | None = Field(
-        description="Created time", 
-        default_factory=datetime.now
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
     )
     
-    created_by: Optional[str] | None = Field(
-        description="created by", 
-        default="Admin"
-    )
 
     model_config = {
         "from_attributes": True
@@ -80,32 +83,25 @@ class FooterWebsiteCreateDto(BaseModel):
 
 
 class FooterWebsiteUpdateDto(BaseModel):
-    title: Optional[str] | None = Field(
-        description="title icon", 
+    title: str | None = Field(
+        description="title icon",
         default="วอลเปเปอร์เสริมดวง"
     )
-    
-    icon_img: Optional[str] | None = Field(
+    icon_img: str | None = Field(
         description="icon img", 
         default="img/test.png"
     )
     
-    link_ref: Optional[str] | None = Field(
+    link_ref: str | None = Field(
         description="link ref", 
         default="www.example.com"
     )
     
-    is_active: bool | None = None
-    
-    updated_at: datetime | None = Field(
-        description="updated time", 
-        default_factory=datetime.now
+    is_active: bool | None = Field(
+        description="Is Active User", 
+        default=True
     )
     
-    updated_by: Optional[str] | None = Field(
-        description="updated by", 
-        default="Admin"
-    )
 
     model_config = {
         "from_attributes": True

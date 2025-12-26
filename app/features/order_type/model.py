@@ -1,22 +1,30 @@
-from sqlalchemy import Boolean, Column, DateTime, Numeric, String
+from datetime import datetime, timezone
+from sqlalchemy import UUID,Boolean, Column, DateTime, Numeric, String
 from sqlalchemy.orm import relationship
-
+import uuid
 from app.core.database import Base
 
 
 class OrderType(Base):
     __tablename__ = "order_type"
 
-    id = Column(String(50), primary_key=True, index=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    type_name = Column(String(150), index=True)
+    type_name = Column(String(150), unique=True, index=True, nullable=False)
     price = Column(Numeric(10, 2))
 
-    is_active = Column(Boolean, index=True)
+    is_active = Column(Boolean)
 
-    created_at = Column(DateTime)
-    created_by = Column(String(50), index=True)
-    updated_at = Column(DateTime)
-    updated_by = Column(String(50), index=True)
+    created_at = Column(
+        DateTime(timezone=True), 
+        default=datetime.now(timezone.utc)
+    )
+    created_by = Column(String(50))
+    updated_at = Column( 
+        DateTime(timezone=True),
+        default=datetime.now(timezone.utc),
+        onupdate=datetime.now(timezone.utc),
+    )
+    updated_by = Column(String(50))
 
     orders = relationship("Order", back_populates="order_type")

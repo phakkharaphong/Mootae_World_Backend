@@ -1,6 +1,6 @@
 from typing import Any, Generic, List, TypeVar
 from pydantic import BaseModel
-
+from uuid import UUID
 T = TypeVar("T")
 
 
@@ -25,7 +25,7 @@ class ResponseModel(BaseModel):
 class ResponseDeleteModel(BaseModel):
     status: int
     message: str
-    data: str
+    data: UUID
 
 
 class ResponseByIdModel(BaseModel, Generic[T]):

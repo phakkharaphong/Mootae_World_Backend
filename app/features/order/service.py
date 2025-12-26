@@ -1,53 +1,125 @@
 from datetime import datetime
 import random
 import string
+from typing import Literal, TypeAlias
 from fastapi import HTTPException
 import pytz
-
+from uuid import UUID
 from app.features.order.model import Order
 from app.features.order.dto import OrderCreateDto, OrderGetDto, OrderUpdateDto
 from app.utils.response import PaginatedResponse, Pagination, ResponseModel
 from sqlalchemy.orm import Session, joinedload
 
+from app.utils.sort import SortOrder
 
-def find_all(db: Session, page: int = 0, limit: int = 100):
+OrderSortField: TypeAlias = Literal["first_name_customer", "last_name_customer", "email", "payment_status","send_wallpaper_status","created_at"]
+
+def find_all(
+      db: Session,
+      *,
+      search: str | None = None,
+      sort_by: OrderSortField | None = "created_at",
+      sort_order: SortOrder | None = "desc",
+      is_active: bool | None = None,
+      page: int = 0,
+      limit: int = 100,
+   ):
     offset = (page - 1) * limit
-    rows = (
-        db.query(Order)
-        .options(joinedload(Order.order_type),joinedload(Order.promotion))
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
-    total = db.query(Order).count()
-    orders = [OrderGetDto.model_validate(r) for r in rows]
-    return PaginatedResponse[OrderGetDto](
+
+    query = db.query(Order).options(joinedload(Order.order_type),joinedload(Order.promotion))
+
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+           Order.first_name_customer.ilike(search_term),
+           Order.last_name_customer.ilike(search_term),
+           Order.email.ilike(search_term),
+                             
+        )
+    if sort_by:
+        sort_column = getattr(Order, sort_by)
+        if sort_order == "desc":
+            sort_column = sort_column.desc()
+        else:
+            sort_column = sort_column.asc()
+            query = query.order_by(sort_column)
+
+    if is_active is not None:
+        query = query.filter(Order.is_active == is_active)
+
+   #  rows = (
+   #      db.query(Order)
+   #      .options(joinedload(Order.order_type),joinedload(Order.promotion))
+   #      .offset(offset)
+   #      .limit(limit)
+   #      .all()
+   #  )
+    data = query.offset(offset).limit(limit).all()
+
+    total = query.count()
+    return PaginatedResponse(
         message="success",
-        data=orders,
+        data=data,
         pagination=Pagination(page=page, limit=limit, total=total),
     )
 
 
-def find_by_email(db: Session, email: str, page: int = 0, limit: int = 100):
+def find_by_email(
+      db: Session,
+      *,
+      search: str | None = None,
+      sort_by: OrderSortField | None = "created_at",
+      sort_order: SortOrder | None = "desc",
+      is_active: bool | None = None, 
+      email: str, 
+      page: int = 0, 
+      limit: int = 100
+   ):
     offset = (page - 1) * limit
-    rows = (
-        db.query(Order)
-        .options(joinedload(Order.order_type))
-        .filter(Order.email == email)
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
-    total = db.query(Order).count()
-    orders = [OrderGetDto.model_validate(r) for r in rows]
-    return PaginatedResponse[OrderGetDto](
+    query = db.query(Order).options(joinedload(Order.order_type),joinedload(Order.promotion)).filter(Order.email == email)
+   #  rows = (
+   #      db.query(Order)
+   #      .options(joinedload(Order.order_type))
+   #      .filter(Order.email == email)
+   #      .offset(offset)
+   #      .limit(limit)
+   #      .all()
+   #  )
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+           Order.first_name_customer.ilike(search_term),
+           Order.last_name_customer.ilike(search_term),
+           Order.email.ilike(search_term),
+                             
+        )
+    if sort_by:
+        sort_column = getattr(Order, sort_by)
+        if sort_order == "desc":
+            sort_column = sort_column.desc()
+        else:
+            sort_column = sort_column.asc()
+            query = query.order_by(sort_column)
+
+    if is_active is not None:
+        query = query.filter(Order.is_active == is_active)
+
+
+    data = query.offset(offset).limit(limit).all()
+
+    total = query.count()
+
+    return PaginatedResponse(
         message="success",
-        data=orders,
+        data=data,
         pagination=Pagination(page=page, limit=limit, total=total),
     )
 
 
-def find_by_id(db: Session, id: str):
+def find_by_id(
+      db: Session, 
+      id: UUID
+   ):
     if id:
         response = db.query(Order).filter(Order.id == id).first()
         if not response:
@@ -56,7 +128,10 @@ def find_by_id(db: Session, id: str):
         return order_get_dto
 
 
-def create(db: Session, order: OrderCreateDto):
+def create(
+      db: Session, 
+      order: OrderCreateDto
+   ):
     day_score = 0
     month_score = 0
     zodiac_score = 0
@@ -135,15 +210,9 @@ def create(db: Session, order: OrderCreateDto):
           zodiac_score = 5
        case _:
           zodiac_score = 0
-    thai_timezone = pytz.timezone("Asia/Bangkok")
-    length = 50
-    random_string = "".join(
-        random.choices(string.ascii_letters + string.digits, k=length)
-    )
-   
+
 
     new_order = Order(
-        id=random_string,
         order_type_id=order.order_type_id,
         first_name_customer=order.first_name_customer,
         last_name_customer=order.last_name_customer,
@@ -162,8 +231,6 @@ def create(db: Session, order: OrderCreateDto):
         payment_status=order.payment_status,
         send_wallpaper_status=order.send_wallpaper_status,
         is_active=True,
-        created_at=datetime.now(thai_timezone),
-        created_by=order.created_by,
     )
 
     db.add(new_order)
@@ -171,23 +238,30 @@ def create(db: Session, order: OrderCreateDto):
     db.refresh(new_order)
 
     created_dto = OrderGetDto.model_validate(new_order)
-    return ResponseModel(status=201, message="Created success", data=created_dto)
+    return ResponseModel(
+       status=201, 
+       message="Created success", 
+       data=created_dto
+   )
 
 
-def update_by_id(db: Session, id: str, order: OrderUpdateDto):
-    thai_timezone = pytz.timezone("Asia/Bangkok")
+def update(
+      db: Session, 
+      id: UUID, 
+      order: OrderUpdateDto
+   ):
 
     response = db.query(Order).filter(Order.id == id).first()
     if not response:
-        raise HTTPException(status_code=404, detail="order not found")
+        raise HTTPException(
+           status_code=404, 
+           detail="order not found"
+         )
 
     update_data = order.model_dump(exclude_unset=True)
     for key, value in update_data.items():
         setattr(response, key, value)
-
-    response.updated_at = datetime.now(thai_timezone)
     order_dict = {
-        "id": response.id,
         "order_type_id": response.order_type_id,
         "first_name_customer": response.first_name_customer,
         "last_name_customer": response.last_name_customer,
@@ -203,18 +277,23 @@ def update_by_id(db: Session, id: str, order: OrderUpdateDto):
         "total_price": response.total_price,
         "payment_status": response.payment_status,
         "send_wallpaper_status": response.send_wallpaper_status,
-        "is_active": response.is_active,
-        "updated_at": response.updated_at,
-        "updated_by": response.updated_by,
+        "is_active": response.is_active
     }
 
     db.commit()
     db.refresh(response)
 
-    return ResponseModel(status=200, message="Updated success", data=order_dict)
+    return ResponseModel(
+       status=200, 
+       message="Updated success", 
+       data=order_dict
+   )
 
 
-def delete_by_id(db: Session, id: str):
+def delete_by_id(
+      db: Session, 
+      id: UUID
+):
     response = db.query(Order).filter(Order.id == id).first()
     if not response:
         raise HTTPException(status_code=404, detail="order not found")
@@ -222,4 +301,8 @@ def delete_by_id(db: Session, id: str):
     db.delete(response)
     db.commit()
 
-    return ResponseModel(status=200, message="Deleted success", data={"id": id})
+    return ResponseModel(
+       status=200, 
+       message="Deleted success", 
+       data=id
+    )

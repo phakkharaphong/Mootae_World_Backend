@@ -1,33 +1,43 @@
-from datetime import datetime
+from uuid import UUID
+from datetime import datetime, timezone
 from pydantic import BaseModel, Field
 
 
 class CategoryGetDto(BaseModel):
-    id: str | None = Field(
-        description="role id", 
+    id: UUID | None = Field(
+        description="Category id", 
         default="EXasfew565d2"
     )
     
     name: str | None = Field(
-        description="Title Slide New", 
+        description="Category Name", 
         default="สายมู"
     )
     
-    is_active: bool | None = None
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
+    )
     
-    created_at: datetime = Field(
+    created_at: datetime | None = Field(
         description="Created time", 
-        default_factory=datetime.now
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     
     created_by: str | None = Field(
-        description="created by", 
-        default="Admin"
+        description="Created by User", 
+        default="System"
     )
     
-    updated_at: datetime | None = None
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     
-    updated_by: str | None = None
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
 
     model_config = {
         "from_attributes": True
@@ -36,20 +46,13 @@ class CategoryGetDto(BaseModel):
 
 class CategoryCreateDto(BaseModel):
     name: str | None = Field(
-        description="Title Slide New", 
+        description="Category Name", 
         default="สายมู"
     )
     
-    is_active: bool | None = None
-    
-    created_at: datetime = Field(
-        description="Created time", 
-        default_factory=datetime.now
-    )
-    
-    created_by: str | None = Field(
-        description="created by", 
-        default="Admin"
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
     )
     
     model_config = {
@@ -59,20 +62,13 @@ class CategoryCreateDto(BaseModel):
 
 class CategoryUpdateDto(BaseModel):
     name: str | None = Field(
-        description="Title Slide New", 
+        description="Category Name", 
         default="สายมู"
     )
     
-    is_active: bool | None = None
-    
-    updated_at: datetime = Field(
-        description="updated time", 
-        default_factory=datetime.now
-    )
-    
-    updated_by: str = Field(
-        description="updated by", 
-        default="Admin"
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
     )
 
     model_config = {

@@ -1,21 +1,25 @@
+from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
+from app.features.auth.router import require_admin
 from app.features.promotion.dto import (
     PromotionCreateDto,
     PromotionGetDto,
     PromotionUpdateDto,
 )
 from app.features.promotion.service import (
+    PromotionSortField,
     find_all,
     find_by_id,
     create,
-    update_by_id,
+    update,
     delete_by_id,
 )
 from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.sort import SortOrder
 
 
 router = APIRouter(
@@ -31,9 +35,23 @@ router = APIRouter(
     summary="Find Promotion",
 )
 async def get_all_category(
-    page: int = 1, limit: int = 100, db: Session = Depends(get_db)
+    search: str | None = None,
+    sort_by: PromotionSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    is_active: bool | None = None,
+    page: int = 1,
+    limit: int = 100,
+    db: Session = Depends(get_db),
 ):
-    return find_all(db, page, limit)
+    return find_all(
+        db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get(
@@ -42,7 +60,10 @@ async def get_all_category(
     tags=["promotion"],
     summary="Find Promotion by id",
 )
-async def get_promotion_by_id(id: str, db: Session = Depends(get_db)):
+async def get_promotion_by_id(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
     return find_by_id(db, id)
 
 
@@ -51,9 +72,11 @@ async def get_promotion_by_id(id: str, db: Session = Depends(get_db)):
     response_model=ResponseModel,
     tags=["promotion"],
     summary="Create Promotion",
+    dependencies=[Depends(require_admin)]
 )
 async def create_promotion(
-    promotion: PromotionCreateDto, db: Session = Depends(get_db)
+    promotion: PromotionCreateDto, 
+    db: Session = Depends(get_db)
 ):
     return create(db, promotion)
 
@@ -63,11 +86,14 @@ async def create_promotion(
     response_model=ResponseModel,
     tags=["promotion"],
     summary="Update Promotion",
+    dependencies=[Depends(require_admin)]
 )
 async def update_promotion(
-    id: str, promotion: PromotionUpdateDto, db: Session = Depends(get_db)
+    id: UUID, 
+    promotion: PromotionUpdateDto, 
+    db: Session = Depends(get_db)
 ):
-    return update_by_id(db, id, promotion)
+    return update(db, id, promotion)
 
 
 @router.delete(
@@ -75,6 +101,10 @@ async def update_promotion(
     response_model=ResponseDeleteModel,
     tags=["promotion"],
     summary="Delete Promotion",
+    dependencies=[Depends(require_admin)]
 )
-async def delete_promotion(id: str, db: Session = Depends(get_db)):
+async def delete_promotion(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
     return delete_by_id(db, id)

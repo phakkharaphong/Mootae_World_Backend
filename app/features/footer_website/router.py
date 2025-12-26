@@ -1,21 +1,25 @@
+from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
+from app.features.auth.router import require_admin
 from app.features.footer_website.dto import (
     FooterWebsiteCreateDto,
     FooterWebsiteGetDto,
     FooterWebsiteUpdateDto,
 )
 from app.features.footer_website.service import (
+    FooterSortField,
     find_all,
     find_by_id,
     create,
-    update_by_id,
-    delete_by_id,
+    update,
+    delete,
 )
 from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.sort import SortOrder
 
 
 router = APIRouter(
@@ -31,9 +35,23 @@ router = APIRouter(
     summary="Find Footer Website",
 )
 async def get_all_footer_website(
-    page: int = 1, limit: int = 100, db: Session = Depends(get_db)
+    search: str | None = None,
+    sort_by: FooterSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    is_active: bool | None = None,
+    page: int = 1,
+    limit: int = 100,
+    db: Session = Depends(get_db),
 ):
-    return find_all(db, page, limit)
+    return find_all(  
+        db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get(
@@ -42,7 +60,10 @@ async def get_all_footer_website(
     tags=["footer-website"],
     summary="Find Footer Website by id",
 )
-async def get_footer_website_by_id(id: str, db: Session = Depends(get_db)):
+async def get_footer_website_by_id(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
     return find_by_id(db, id)
 
 
@@ -51,9 +72,11 @@ async def get_footer_website_by_id(id: str, db: Session = Depends(get_db)):
     response_model=ResponseModel,
     tags=["footer-website"],
     summary="Create Footer Website",
+    dependencies=[Depends(require_admin)]
 )
 async def create_footer_website(
-    footer_website: FooterWebsiteCreateDto, db: Session = Depends(get_db)
+    footer_website: FooterWebsiteCreateDto, 
+    db: Session = Depends(get_db)
 ):
     return create(db, footer_website)
 
@@ -63,11 +86,14 @@ async def create_footer_website(
     response_model=ResponseModel,
     tags=["footer-website"],
     summary="Update Footer Website",
+    dependencies=[Depends(require_admin)]
 )
 async def update_footer_website(
-    id: str, footer_website: FooterWebsiteUpdateDto, db: Session = Depends(get_db)
+    id: UUID, 
+    footer_website: FooterWebsiteUpdateDto, 
+    db: Session = Depends(get_db)
 ):
-    return update_by_id(db, id, footer_website)
+    return update(db, id, footer_website)
 
 
 @router.delete(
@@ -75,6 +101,10 @@ async def update_footer_website(
     response_model=ResponseDeleteModel,
     tags=["footer-website"],
     summary="Delete Footer Website",
+    dependencies=[Depends(require_admin)]
 )
-async def delete_footer_website(id: str, db: Session = Depends(get_db)):
-    return delete_by_id(db, id)
+async def delete_footer_website(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
+    return delete(db, id)

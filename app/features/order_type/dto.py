@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from uuid import UUID
 from pydantic import BaseModel, Field
 
 
 class OrderTypeGetDto(BaseModel):
-    id: str = Field(
+    id: UUID = Field(
         description="order_type id", 
         default="EXasfew565d2"
     )
@@ -17,30 +18,40 @@ class OrderTypeGetDto(BaseModel):
         description="price", 
         default=580.00
     )
+
     
-    is_active: bool | None = None
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
+    )
     
     created_at: datetime | None = Field(
         description="Created time", 
-        default_factory=datetime.now
+        default_factory=lambda: datetime.now(timezone.utc)
     )
     
     created_by: str | None = Field(
-        description="created by", 
-        default="Admin"
+        description="Created by User", 
+        default="System"
     )
     
-    updated_at: datetime | None = None
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     
-    updated_by: str | None = None
-
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
+    
     model_config = {
         "from_attributes": True
     }
 
 
 class OrderTypeGetJoinDto(BaseModel):
-    id: str = Field(
+    id: UUID = Field(
         description="order_type id", 
         default="EXasfew565d2"
     )
@@ -77,16 +88,6 @@ class OrderTypeCreateDto(BaseModel):
         description="Active status", 
         default=True
     )
-    
-    created_at: datetime = Field(
-        description="Created time", 
-        default_factory=datetime.now
-    )
-    
-    created_by: str = Field(
-        description="created by", 
-        default="Admin"
-    )
 
     model_config = {
         "from_attributes": True
@@ -109,15 +110,6 @@ class OrderTypeUpdateDto(BaseModel):
         default=True
     )
     
-    updated_at: datetime = Field(
-        description="updated time", 
-        default_factory=datetime.now
-    )
-    
-    updated_by: str = Field(
-        description="updated by", 
-        default="Admin"
-    )
 
     model_config = {
         "from_attributes": True

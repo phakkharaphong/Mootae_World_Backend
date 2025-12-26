@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import APIKeyHeader
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ from app.features.user.dto import UserGetDto
 from app.features.user.model import User
 from app.utils.password import verify_password
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
 router = APIRouter(
@@ -21,9 +21,15 @@ router = APIRouter(
 
 
 def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    token: str = Depends(api_key_header),
     db: Session = Depends(get_db),
 ):
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="HTTP_401_UNAUTHORIZED",
+        )
+    
     try:
         payload = jwt.decode(
             token,
@@ -82,7 +88,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @router.post(
     "/login",
     response_model=TokenDto,
-    tags=["user"],
+    tags=["auth"],
     summary="Login for access token",
 )
 def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
@@ -106,7 +112,7 @@ def login_for_access_token(login: LoginDto, db: Session = Depends(get_db)):
 @router.get(
     "/me",
     response_model=UserGetDto,
-    tags=["user"],
+    tags=["auth"],
     summary="Get current user info",
 )
 def get_current_user_info(user: User = Depends(get_current_user)):

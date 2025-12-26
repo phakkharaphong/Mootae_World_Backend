@@ -1,8 +1,10 @@
+from uuid import UUID
 from fastapi import APIRouter
 from fastapi.params import Depends
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
+from app.features.auth.router import require_admin
 from app.features.order_type.dto import (
     OrderTypeCreateDto,
     OrderTypeGetDto,
@@ -10,13 +12,15 @@ from app.features.order_type.dto import (
     OrderTypeUpdateDto,
 )
 from app.features.order_type.service import (
+    OrderTypeSortField,
     find_all,
     find_by_id,
     create,
-    update_by_id,
+    update,
     delete_by_id,
 )
 from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.sort import SortOrder
 
 
 router = APIRouter(
@@ -32,9 +36,23 @@ router = APIRouter(
     summary="Find Order Type",
 )
 async def get_all_order_type(
-    page: int = 1, limit: int = 100, db: Session = Depends(get_db)
+    search: str | None = None,
+    sort_by: OrderTypeSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    is_active: bool | None = None,
+    page: int = 1,
+    limit: int = 100,
+    db: Session = Depends(get_db),
 ):
-    return find_all(db, page, limit)
+    return find_all( 
+        db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get(
@@ -43,7 +61,10 @@ async def get_all_order_type(
     tags=["order-type"],
     summary="Find Order Type by id",
 )
-async def get_order_type_by_id(id: str, db: Session = Depends(get_db)):
+async def get_order_type_by_id(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
     return find_by_id(db, id)
 
 
@@ -52,9 +73,11 @@ async def get_order_type_by_id(id: str, db: Session = Depends(get_db)):
     response_model=ResponseModel,
     tags=["order-type"],
     summary="Create Order Type",
+    dependencies=[Depends(require_admin)]
 )
 async def create_order_type(
-    order_type: OrderTypeCreateDto, db: Session = Depends(get_db)
+    order_type: OrderTypeCreateDto, 
+    db: Session = Depends(get_db)
 ):
     return create(db, order_type)
 
@@ -64,11 +87,14 @@ async def create_order_type(
     response_model=ResponseModel,
     tags=["order-type"],
     summary="Update Order Type",
+    dependencies=[Depends(require_admin)]
 )
 async def update_order_type(
-    id: str, order_type: OrderTypeUpdateDto, db: Session = Depends(get_db)
+    id: UUID, 
+    order_type: OrderTypeUpdateDto, 
+    db: Session = Depends(get_db)
 ):
-    return update_by_id(db, id, order_type)
+    return update(db, id, order_type)
 
 
 @router.delete(
@@ -76,6 +102,10 @@ async def update_order_type(
     response_model=ResponseDeleteModel,
     tags=["order-type"],
     summary="Delete Order Type",
+    dependencies=[Depends(require_admin)]
 )
-async def delete_order_type(id: str, db: Session = Depends(get_db)):
+async def delete_order_type(
+    id: UUID, 
+    db: Session = Depends(get_db)
+):
     return delete_by_id(db, id)

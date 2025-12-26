@@ -49,6 +49,8 @@ app.add_middleware(
 
 api_router = APIRouter(prefix="/api/v1")
 
+api_router.include_router(user_router)
+api_router.include_router(auth_router)
 api_router.include_router(attachment_router)
 api_router.include_router(blog_router)
 api_router.include_router(blog_homepage_router)
@@ -60,7 +62,5 @@ api_router.include_router(order_type_router)
 api_router.include_router(promotion_router)
 api_router.include_router(slide_activity_router)
 api_router.include_router(slide_news_router)
-api_router.include_router(user_router)
-api_router.include_router(auth_router)
 
 app.include_router(api_router)

@@ -4,6 +4,7 @@ from fastapi.params import Depends
 
 from app.core.database import get_db
 from sqlalchemy.orm import Session
+from app.features.auth.router import require_admin, require_auth
 from app.features.user.dto import UserCreateDto, UserGetDto, UserUpdateDto
 from app.features.user.error import UserAlreadyExistsError, UserNotFoundError
 from app.features.user.service import (
@@ -29,6 +30,7 @@ router = APIRouter(
     response_model=PaginatedResponse[UserGetDto],
     tags=["user"],
     summary="Find User",
+    dependencies=[Depends(require_admin)]
 )
 async def get_all_user(
     search: str | None = None,
@@ -101,6 +103,7 @@ async def update_user(id: str, user: UserUpdateDto, db: Session = Depends(get_db
     tags=["user"],
     summary="Delete User",
     status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)]
 )
 async def delete_user(id: str, db: Session = Depends(get_db)):
     try:

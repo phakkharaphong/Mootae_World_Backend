@@ -1,10 +1,11 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Optional
+from uuid import UUID
 from pydantic import BaseModel, Field
 
 
 class PromotionGetDto(BaseModel):
-    id: str | None = Field(
+    id: UUID | None = Field(
         description="order id", 
         default="EXasfew565d2"
     )
@@ -34,18 +35,30 @@ class PromotionGetDto(BaseModel):
         default=580.00
     )
     
-    is_active: bool | None = None
-    
-    created_at: datetime | None = None
-    
-    created_by: str | None = Field(
-        description="created by", 
-        default="Admin"
+    is_active: bool | None = Field(
+        description="Is Active Category", 
+        default=True
     )
     
-    updated_at: datetime | None = None
+    created_at: datetime | None = Field(
+        description="Created time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
     
-    updated_by: str | None = None
+    created_by: str | None = Field(
+        description="Created by User", 
+        default="System"
+    )
+    
+    updated_at: datetime | None = Field(
+        description="Updated time", 
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    
+    updated_by: str | None = Field(
+        description="Updated by User", 
+        default="System"
+    )
 
     model_config = {
         "from_attributes": True
@@ -87,42 +100,44 @@ class PromotionGetOrderDto(BaseModel):
 
 
 class PromotionCreateDto(BaseModel):
-    promocode: Optional[str] | None = Field(
+    promocode: str| None = Field(
         description="Promotion Code Format", 
         default="TE001"
     )
     
-    promotion_title: Optional[str] | None = Field(
+    promotion_title: str | None = Field(
         description="promotion title", 
         default="ส่วนลดตุรษจีน"
     )
     
-    start_date: Optional[date] | None = Field(
+    start_date: date | None = Field(
         description="Start Date", 
         default=date(2025, 8, 15)
     )
     
-    end_date: Optional[date] | None = Field(
+    end_date: date| None = Field(
         description="end Date", 
         default=date(2025, 8, 15)
     )
     
-    discount: Optional[float] | None = Field(
+    discount: float | None = Field(
         description="discount", 
         default=580.00
     )
     
-    is_active: Optional[bool] | None = None
-    
-    created_at: Optional[datetime] | None = Field(
-        description="Create at", 
-        default_factory=datetime.now
+    is_active: bool | None = Field(
+        description="Is Active", 
+        default=True
     )
+    # created_at: datetime | None = Field(
+    #     description="Create at", 
+    #     default_factory=datetime.now
+    # )
     
-    created_by: Optional[str] | None = Field(
-        description="created by", 
-        default="Admin"
-    )
+    # created_by: str| None = Field(
+    #     description="created by", 
+    #     default="Admin"
+    # )
 
     model_config = {
         "from_attributes": True
@@ -155,17 +170,20 @@ class PromotionUpdateDto(BaseModel):
         default=999.00
     )
     
-    is_active: bool | None = None
-    
-    updated_at: datetime | None = Field(
-        description="Updated at", 
-        default_factory=datetime.now
+    is_active: bool | None = Field(
+        description="Is Active", 
+        default=True
     )
     
-    updated_by: str | None = Field(
-        description="Updated by", 
-        default="Admin"
-    )
+    # updated_at: datetime | None = Field(
+    #     description="Updated at", 
+    #     default_factory=datetime.now
+    # )
+    
+    # updated_by: str | None = Field(
+    #     description="Updated by", 
+    #     default="Admin"
+    # )
 
     model_config = {
         "from_attributes": True
