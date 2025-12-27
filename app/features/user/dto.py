@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 class UserGetDto(BaseModel):
     id: UUID = Field(
         description="User ID", 
-        default="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        examples=["3fa85f64-5717-4562-b3fc-2c963f66afa6"]
     )
     
     username: str = Field(
@@ -76,7 +76,7 @@ class UserGetDto(BaseModel):
 class UserCreateDto(BaseModel):
     username: str = Field(
         description="Username User", 
-        default="Admin01"
+        examples=["Admin05"]
     )
     
     password: str = Field(

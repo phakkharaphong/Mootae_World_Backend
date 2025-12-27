@@ -20,6 +20,8 @@ from app.features.promotion.model import Promotion
 from app.features.slide_activity.model import SlideActivity
 from app.features.slide_news.model import SlideNew
 from app.features.user.model import User
+from app.features.wallpaper.model import Wallpaper
+from app.features.wallpaper_collection.model import WallpaperCollection
 
 
 # this is the Alembic Config object, which provides
@@ -41,7 +43,7 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-config.set_main_option("sqlalchemy.url", get_database_url())
+config.set_main_option("sqlalchemy.url", get_database_url().replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:

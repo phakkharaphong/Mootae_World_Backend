@@ -15,6 +15,10 @@ from app.features.slide_activity.router import router as slide_activity_router
 from app.features.slide_news.router import router as slide_news_router
 from app.features.user.router import router as user_router
 from app.features.auth.router import router as auth_router
+from app.features.wallpaper_collection.router import (
+    router as wallpaper_collection_router,
+)
+from app.features.wallpaper.router import router as wallpaper_router
 
 
 Base.metadata.create_all(bind=engine)
@@ -48,11 +52,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount(
-    "/uploads",
-    StaticFiles(directory="uploads"),
-    name="uploads"
-)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 api_router = APIRouter(prefix="/api/v1")
 
@@ -69,5 +69,7 @@ api_router.include_router(order_type_router)
 api_router.include_router(promotion_router)
 api_router.include_router(slide_activity_router)
 api_router.include_router(slide_news_router)
+api_router.include_router(wallpaper_router)
+api_router.include_router(wallpaper_collection_router)
 
 app.include_router(api_router)
