@@ -56,7 +56,7 @@ def _watermark_bytes(image_bytes: bytes, text: str, ext: str) -> bytes:
         font = load_truetype(font_size)
         truetype_available = font is not None
         if not truetype_available:
-            font = ImageFont.load_default()
+            print("Warning: Truetype font not available.")
 
         def measure(
             current_font: ImageFont.ImageFont,
@@ -80,8 +80,6 @@ def _watermark_bytes(image_bytes: bytes, text: str, ext: str) -> bytes:
         )
         d = ImageDraw.Draw(text_layer)
 
-        # `textbbox()` can return negative left/top values for some fonts.
-        # Shift by -bbox[0]/-bbox[1] so glyph ascenders/descenders don't get clipped.
         x0 = pad - bbox[0]
         y0 = pad - bbox[1]
 
