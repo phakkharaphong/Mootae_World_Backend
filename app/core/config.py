@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     UPLOAD_DIR: str = "uploads"
+    UPLOAD_WALLPAPER_DIR: str = "uploads_wallpapers"
 
     class Config:
         env_file = ".env"
