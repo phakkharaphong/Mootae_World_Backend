@@ -40,26 +40,39 @@ def _watermark_bytes(image_bytes: bytes, text: str, ext: str) -> bytes:
 
         # Start big and adjust down until it fits the target width.
         font_size = max(32, int(min(w, h) * 0.22))
-        try:
-            truetype_available = True
-            font = ImageFont.truetype("arial.ttf", font_size)
-        except Exception:
-            truetype_available = False
+
+        candidate_font_paths: list[str] = []
+        candidate_font_paths.append("app/assets/fonts/Ubuntu-Regular.ttf")
+
+        def load_truetype(size: int):
+            for p in candidate_font_paths:
+                try:
+                    if p and Path(p).exists():
+                        return ImageFont.truetype(str(p), size)
+                except Exception:
+                    continue
+            return None
+
+        font = load_truetype(font_size)
+        truetype_available = font is not None
+        if not truetype_available:
             font = ImageFont.load_default()
 
-        def measure(current_font: ImageFont.ImageFont) -> tuple[int, int]:
+        def measure(
+            current_font: ImageFont.ImageFont,
+        ) -> tuple[tuple[int, int, int, int], int, int]:
             m = ImageDraw.Draw(overlay)
             bbox = m.textbbox((0, 0), text, font=current_font)
-            return bbox[2] - bbox[0], bbox[3] - bbox[1]
+            return bbox, bbox[2] - bbox[0], bbox[3] - bbox[1]
 
-        text_w, text_h = measure(font)
+        bbox, text_w, text_h = measure(font)
         if truetype_available:
             for _ in range(12):
                 if text_w <= target_width:
                     break
                 font_size = max(12, int(font_size * 0.9))
-                font = ImageFont.truetype("arial.ttf", font_size)
-                text_w, text_h = measure(font)
+                font = load_truetype(font_size) or font
+                bbox, text_w, text_h = measure(font)
 
         pad = max(20, int(min(w, h) * 0.03))
         text_layer = Image.new(
@@ -67,11 +80,16 @@ def _watermark_bytes(image_bytes: bytes, text: str, ext: str) -> bytes:
         )
         d = ImageDraw.Draw(text_layer)
 
+        # `textbbox()` can return negative left/top values for some fonts.
+        # Shift by -bbox[0]/-bbox[1] so glyph ascenders/descenders don't get clipped.
+        x0 = pad - bbox[0]
+        y0 = pad - bbox[1]
+
         # Soft shadow + semi-transparent fill.
         shadow = (0, 0, 0, 80)
         fill = (255, 255, 255, 110)
-        d.text((pad + 3, pad + 3), text, font=font, fill=shadow)
-        d.text((pad, pad), text, font=font, fill=fill)
+        d.text((x0 + 3, y0 + 3), text, font=font, fill=shadow)
+        d.text((x0, y0), text, font=font, fill=fill)
 
         rotated = text_layer.rotate(angle, expand=True, resample=Image.BICUBIC)
         rx, ry = rotated.size
