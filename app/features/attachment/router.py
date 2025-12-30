@@ -6,6 +6,8 @@ import uuid
 from io import BytesIO
 
 from fastapi import APIRouter, File, Request, UploadFile, HTTPException
+from fastapi.responses import StreamingResponse
+import requests
 from app.core.config import settings
 
 UPLOAD_DIR = Path(settings.UPLOAD_DIR)
