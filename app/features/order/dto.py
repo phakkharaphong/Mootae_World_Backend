@@ -43,6 +43,14 @@ class OrderGetDto(BaseModel):
         default="notentoneotn"
     )
 
+    title_moo: str | None = Field(
+        description="Title For moo",
+        default="Love"
+    )
+    full_mootext: str | None = Field(
+        description="Full text to wallpaper",
+    )
+
     birth_date_customer: str | None = Field(
         description="birth_date_customer", 
         default="Monday"
@@ -66,7 +74,7 @@ class OrderGetDto(BaseModel):
         default="รอการชำระเงิน"
     )
 
-    promotion_id: str | None = Field(
+    promotion_id: UUID | None = Field(
         description="promotion_id", 
         default="CODE110"
     )
@@ -151,6 +159,11 @@ class OrderCreateDto(BaseModel):
         default="notentoneotn"
     )
 
+    title_moo: str | None = Field(
+        description="Title For moo",
+        default="Love"
+    )
+
     birth_date_customer: str | None = Field(
         description="birth_date_customer", 
         default="Monday"
@@ -174,7 +187,7 @@ class OrderCreateDto(BaseModel):
         default="รอการชำระเงิน"
     )
 
-    promotion_id: str | None = Field(
+    promotion_id: UUID | None = Field(
         description="promotion_id", 
         default="CODE110")
 
@@ -229,6 +242,11 @@ class OrderUpdateDto(BaseModel):
         default="notentoneotn"
     )
 
+    title_moo: str | None = Field(
+        description="Title For moo",
+        default="Love"
+    )
+
     birth_date_customer: str | None = Field(
         description="birth_date_customer", 
         default="Monday"
@@ -252,7 +270,7 @@ class OrderUpdateDto(BaseModel):
         default="รอการชำระเงิน"
     )
 
-    promotion_id: str | None = Field(
+    promotion_id: UUID | None = Field(
         description="promotion_id", 
         default="CODE110")
 

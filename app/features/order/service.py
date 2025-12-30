@@ -135,6 +135,10 @@ def create(
     day_score = 0
     month_score = 0
     zodiac_score = 0
+    title_score = 0
+    textlist_day = []
+    textlist_month = []
+    textlist_zodiac = []
     if not order:
         raise HTTPException(status_code=400, detail="Invalid order data")
     match (order.birth_date_customer):
@@ -212,6 +216,96 @@ def create(
           zodiac_score = 0
 
 
+    match (order.title_moo):
+         case ("Love"):
+            title_score = random.choice([24, 42, 22, 28, 26])
+         case ("Charm"):
+            title_score = random.choice([23])
+         case ("Travel"):
+            title_score = random.choice([27])
+         case ("Trade"):
+            title_score = random.choice([29])
+         case ("Work"):
+            title_score = random.choice([45, 46])
+         case ("Finance"):
+            title_score = random.choice([56, 36, 63])
+         case ("Health"):
+            title_score = random.choice([46, 45, 59, 95])
+         case ("Business"):
+            title_score = random.choice([36, 32, 65, 79])
+         case _:
+            title_score = random.choice([15, 39, 92])
+
+    match day_score:
+      case (1):
+         textlist_day.extend([4, 5, 9, 0])
+      case (2): 
+         textlist_day.extend([2, 4, 6, 7, 8, 9, 0])
+      case (3):
+         textlist_day.extend([2, 4, 5, 6, 9, 0])
+      case (4):
+         textlist_day.extend([2, 5, 6, 7, 0])
+      case (5):
+         textlist_day.extend([1, 3, 4, 6, 9, 0])
+      case (6):
+         textlist_day.extend([2, 3, 4, 5, 0])
+      case (7):
+         textlist_day.extend([2, 4, 5, 6, 8, 9, 0])
+      case (8):
+         textlist_day.extend([2, 6, 7, 9, 0])
+      case (9):
+         textlist_day.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
+
+    match month_score:
+      case (1):
+         textlist_month.extend([4, 5, 9, 0])
+      case (2): 
+         textlist_month.extend([2, 4, 6, 7, 8, 9, 0])
+      case (3):
+         textlist_month.extend([2, 4, 5, 6, 9, 0])
+      case (4):
+         textlist_month.extend([2, 5, 6, 7, 0])
+      case (5):
+         textlist_month.extend([1, 3, 4, 6, 9, 0])
+      case (6):
+         textlist_month.extend([2, 3, 4, 5, 0])
+      case (7):
+         textlist_month.extend([2, 4, 5, 6, 8, 9, 0])
+      case (8):
+         textlist_month.extend([2, 6, 7, 9, 0])
+      case (9):
+         textlist_month.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
+
+    match zodiac_score:
+      case (1):
+         textlist_zodiac.extend([4, 5, 9, 0])
+      case (2): 
+         textlist_zodiac.extend([2, 4, 6, 7, 8, 9, 0])
+      case (3):
+         textlist_zodiac.extend([2, 4, 5, 6, 9, 0])
+      case (4):
+         textlist_zodiac.extend([2, 5, 6, 7, 0])
+      case (5):
+         textlist_zodiac.extend([1, 3, 4, 6, 9, 0])
+      case (6):
+         textlist_zodiac.extend([2, 3, 4, 5, 0])
+      case (7):
+         textlist_zodiac.extend([2, 4, 5, 6, 8, 9, 0])
+      case (8):
+         textlist_zodiac.extend([2, 6, 7, 9, 0])
+      case (9):
+         textlist_zodiac.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
+      
+    lists = textlist_day + textlist_month +  textlist_zodiac
+   #  print("textlist_day: ",textlist_day)
+   #  print("textlist_month: ",textlist_month)
+   #  print("textlist_zodiac: ",textlist_zodiac)
+   #  print("List Is", lists , " and Last :",title_score)
+   # #  for i in  textlist_zodiac:
+   #  print( day_score,month_score,zodiac_score,title_score," ".join(map(str, lists)),sep=" ")
+    full_text = " ".join(map(str, [day_score, month_score, zodiac_score, title_score] + lists))
+
+
     new_order = Order(
         order_type_id=order.order_type_id,
         first_name_customer=order.first_name_customer,
@@ -220,9 +314,12 @@ def create(
         phone=order.phone,
         congenital_disease=order.congenital_disease,
         note=order.note,
+        title_moo = order.title_moo,
+        title_moo_number = title_score,
         birth_date_customer=order.birth_date_customer,
         birth_month_customer=order.birth_month_customer,
         zodiac_customer = order.zodiac_customer,
+        full_mootext = full_text,
         promotion_id=order.promotion_id,
         total_price=order.total_price,
         birth_date_customer_number = day_score,

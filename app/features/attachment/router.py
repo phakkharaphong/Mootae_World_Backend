@@ -178,7 +178,7 @@ def add_text_to_image(
 
     draw = ImageDraw.Draw(image)
     # font = ImageFont.truetype("fonts/THSarabunNew.ttf", 40)
-    font = ImageFont.truetype("arial.ttf", 50)
+    font = ImageFont.truetype("app/assets/fonts/Ubuntu-Regular.ttf", 35)
 
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
