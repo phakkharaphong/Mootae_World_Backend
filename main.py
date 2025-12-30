@@ -20,8 +20,7 @@ from app.features.wallpaper_collection.router import (
     router as wallpaper_collection_router,
 )
 from app.features.wallpaper.router import router as wallpaper_router
-
-
+from app.features.email.router import router as email_router
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -60,6 +59,7 @@ api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(user_router)
 api_router.include_router(auth_router)
 api_router.include_router(attachment_router)
+api_router.include_router(email_router)
 api_router.include_router(blog_router)
 api_router.include_router(blog_homepage_router)
 api_router.include_router(category_router)

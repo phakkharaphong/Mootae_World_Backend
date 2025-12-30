@@ -7,6 +7,8 @@ API Document Ref: <https://fastapi.tiangolo.com/tutorial/>
 
 Ref: <https://medium.com/@iambkpl/setup-fastapi-and-sqlalchemy-mysql-986419dbffeb>
 
+MailService: <https://sabuhish.github.io/fastapi-mail/example/>
+
 source venv/Scripts/activate
 
 alembic revision --autogenerate -m "create tables"

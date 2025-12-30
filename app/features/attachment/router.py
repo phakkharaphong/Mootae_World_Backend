@@ -1,10 +1,11 @@
+import io
 from pathlib import Path
 import shutil
+from PIL import Image, ImageDraw, ImageFont
 import uuid
 from io import BytesIO
 
 from fastapi import APIRouter, File, Request, UploadFile, HTTPException
-
 from app.core.config import settings
 
 UPLOAD_DIR = Path(settings.UPLOAD_DIR)
@@ -106,7 +107,11 @@ def _watermark_bytes(image_bytes: bytes, text: str, ext: str) -> bytes:
         return buf.getvalue()
 
 
-@router.post("/upload", status_code=201)
+@router.post(
+        "/upload", 
+        status_code=201,
+        description="Upload File and Img"
+)
 async def upload_file(request: Request, file: UploadFile = File(...)):
     if file.content_type not in {"image/png", "image/jpeg"}:
         raise HTTPException(400, "Invalid file type")
@@ -151,3 +156,41 @@ async def upload_wallpaper(request: Request, file: UploadFile = File(...)):
         "filename": filename,
         "url": file_url,
     }
+
+@router.post(
+        "/image/text",
+        description="Add Text to Image"
+        )
+def add_text_to_image(
+    request: Request,
+    text: str,
+    image_url: str,
+):
+    response = requests.get(image_url, timeout=10)
+    response.raise_for_status()
+
+    image = Image.open(io.BytesIO(response.content)).convert("RGBA")
+
+    new_size = (1024, 1536)
+    image = image.resize(new_size, Image.Resampling.LANCZOS)
+
+    draw = ImageDraw.Draw(image)
+    # font = ImageFont.truetype("fonts/THSarabunNew.ttf", 40)
+    font = ImageFont.truetype("arial.ttf", 50)
+
+    bbox = draw.textbbox((0, 0), text, font=font)
+    text_width = bbox[2] - bbox[0]
+
+    x = (image.width - text_width) // 2
+
+    draw.text((x, 1390), text, fill="#151212", font=font, stroke_width=2, stroke_fill="#DCD5D5")
+    buf = io.BytesIO()
+    image.save(buf, format="PNG")
+    buf.seek(0)
+    filename = f"{uuid.uuid4()}.png"
+    file_path = UPLOAD_DIR / filename
+    image.save(file_path, format="PNG")
+
+    # file_url = f"{request.base_url}uploads/{filename}"
+
+    return StreamingResponse(buf, media_type="image/png")
