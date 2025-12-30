@@ -88,6 +88,11 @@ class OrderTypeCreateDto(BaseModel):
         description="Active status", 
         default=True
     )
+    
+    key: str = Field(
+        description="key",
+        examples=["love"]
+    )
 
     model_config = {
         "from_attributes": True

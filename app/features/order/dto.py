@@ -1,293 +1,141 @@
-from datetime import datetime, date, timezone
+from datetime import datetime, timezone
 from uuid import UUID
 from pydantic import BaseModel, Field
 
-from app.features.order_type.dto import OrderTypeGetDto, OrderTypeGetJoinDto
-from app.features.promotion.dto import PromotionGetDto, PromotionGetOrderDto
+from app.features.order_type.dto import OrderTypeGetJoinDto
 
 
 class OrderGetDto(BaseModel):
-    id: UUID | None = Field(
-        description="order id", 
-        default="EXasfew565d2"
-    )
+    id: UUID | None = Field(description="order id", examples=["EXasfew565d2"])
 
     order_type_id: UUID | None = Field(
-        description="order_type_id", 
-        default="EXasfew565d2"
+        description="order_type_id", examples=["EXasfew565d2"]
     )
     order_type: OrderTypeGetJoinDto | None = None
 
     first_name_customer: str | None = Field(
-        description="First Name", 
-        default="Phakkharaphong"
+        description="First Name", examples=["Phakkharaphong"]
     )
 
     last_name_customer: str | None = Field(
-        description="Last Name", 
-        default="Charoenphon"
+        description="Last Name", examples=["Charoenphon"]
     )
 
-    phone: str | None = Field(
-        description="phone", 
-        default="0943955615"
-    )
+    phone: str | None = Field(description="phone", examples=["0943955615"])
 
-    email: str | None = Field(
-        description="email", 
-        default="example@gmail.com"
-    )
+    email: str | None = Field(description="email", examples=["example@gmail.com"])
 
-    note: str | None = Field(
-        description="note", 
-        default="notentoneotn"
-    )
-
-    title_moo: str | None = Field(
-        description="Title For moo",
-        default="Love"
-    )
-    full_mootext: str | None = Field(
-        description="Full text to wallpaper",
-    )
-
-    birth_date_customer: str | None = Field(
-        description="birth_date_customer", 
-        default="Monday"
-    )
-
-    birth_month_customer: str | None = Field(
-        description="birth_month_customer", 
-        default="January"
-    )
-
-    congenital_disease: str | None = Field(
-            description="congenital_disease", 
-            default="หอบหืด"
-        )
-    zodiac_customer: str | None = Field(
-        description="Zodiac", 
-        default="Rat"
-    )
     payment_status: str | None = Field(
-        description="payment_status", 
-        default="รอการชำระเงิน"
+        description="payment_status", examples=["รอการชำระเงิน"]
     )
 
-    promotion_id: UUID | None = Field(
-        description="promotion_id", 
-        default="CODE110"
-    )
-    promotion: PromotionGetOrderDto | None = None
     birth_date_customer_number: int | None = Field(
-        description="Number for date", 
-        default=0
+        description="Number for date", examples=[0]
     )
+
     birth_month_customer_number: int | None = Field(
-        description="Number for month", 
-        default=0
+        description="Number for month", examples=[0]
     )
+
     zodiac_customer_number: int | None = Field(
-        description="Number for zodiac", 
-        default=0
+        description="Number for zodiac", examples=[0]
     )
 
+    total_price: float | None = Field(description="total_price", examples=[580.00])
 
-    total_price: float | None = Field(
-        description="total_price", 
-        default=580.00
-    )
-
-    is_active: bool | None = Field(
-        description="Is Active Category", 
-        default=True
-    )
-    
     created_at: datetime | None = Field(
-        description="Created time", 
-        default_factory=lambda: datetime.now(timezone.utc)
+        description="Created time", examples=[datetime.now(timezone.utc)]
     )
-    
-    created_by: str | None = Field(
-        description="Created by User", 
-        default="System"
-    )
-    
+
+    created_by: str | None = Field(description="Created by User", examples=["System"])
+
     updated_at: datetime | None = Field(
-        description="Updated time", 
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    
-    updated_by: str | None = Field(
-        description="Updated by User", 
-        default="System"
+        description="Updated time", examples=[datetime.now(timezone.utc)]
     )
 
+    updated_by: str | None = Field(description="Updated by User", examples=["System"])
 
-    model_config = {"from_attributes": True }
+    model_config = {"from_attributes": True}
 
 
 class OrderCreateDto(BaseModel):
-
-    order_type_id: str | None = Field(
-        description="order_type_id", 
-        default="EXasfew565d2"
+    order_type_id: UUID | None = Field(
+        description="order_type_id", examples=["EXasfew565d2"]
     )
 
     first_name_customer: str | None = Field(
-        description="First Name", 
-        default="Phakkharaphong"
+        description="First Name", examples=["Phakkharaphong"]
     )
 
     last_name_customer: str | None = Field(
-        description="Last Name", 
-        default="Charoenphon"
+        description="Last Name", examples=["Charoenphon"]
     )
 
-    phone: str | None = Field(
-        description="phone", 
-        default="0943955615"
+    phone: str | None = Field(description="phone", examples=["0943955615"])
+
+    email: str | None = Field(description="email", examples=["example@gmail.com"])
+
+    birth_date_customer_number: int = Field(
+        description="Number for date", examples=[0]
     )
 
-    email: str | None = Field(
-        description="email", 
-        default="example@gmail.com"
+    birth_month_customer_number: int = Field(
+        description="Number for month", examples=[0]
     )
 
-    note: str | None = Field(
-        description="note", 
-        default="notentoneotn"
+    zodiac_customer_number: int = Field(
+        description="Number for zodiac", examples=[0]
     )
 
-    title_moo: str | None = Field(
-        description="Title For moo",
-        default="Love"
-    )
-
-    birth_date_customer: str | None = Field(
-        description="birth_date_customer", 
-        default="Monday"
-    )
-
-    birth_month_customer: str | None = Field(
-        description="birth_month_customer", 
-        default="January"
-    )
-
-    congenital_disease: str | None = Field(
-        description="congenital_disease", 
-        default="หอบหืด"
-    )
-    zodiac_customer: str | None = Field(
-        description="Zodiac", 
-        default="Rat"
-    )
-    payment_status: str | None = Field(
-        description="payment_status", 
-        default="รอการชำระเงิน"
-    )
-
-    promotion_id: UUID | None = Field(
-        description="promotion_id", 
-        default="CODE110")
-
-    total_price: float | None = Field(
-        description="total_price", 
-        default=580.00)
-
-
-    send_wallpaper_status: str | None = Field(
-        description="Send To mail Status", 
-        default="ยังไม่ดำเนินการ"
-    )
-
-    is_active: bool | None = Field(
-        description="Is Active Order", 
-        default=True
-    )
-    
-    model_config = {
-        "from_attributes": True
-    }
+    model_config = {"from_attributes": True}
 
 
 class OrderUpdateDto(BaseModel):
     order_type_id: str | None = Field(
-        description="order_type_id", 
-        default="EXasfew565d2"
+        description="order_type_id", examples=["EXasfew565d2"]
     )
 
     first_name_customer: str | None = Field(
-        description="First Name", 
-        default="Phakkharaphong"
+        description="First Name", examples=["Phakkharaphong"]
     )
 
     last_name_customer: str | None = Field(
-        description="Last Name", 
-        default="Charoenphon"
+        description="Last Name", examples=["Charoenphon"]
     )
 
-    phone: str | None = Field(
-        description="phone", 
-        default="0943955615"
+    phone: str | None = Field(description="phone", examples=["0943955615"])
+
+    email: str | None = Field(description="email", examples=["example@gmail.com"])
+
+    birth_date_customer_number: int | None = Field(
+        description="Number for date", examples=[0]
     )
 
-    email: str | None = Field(
-        description="email", 
-        default="example@gmail.com"
+    birth_month_customer_number: int | None = Field(
+        description="Number for month", examples=[0]
     )
 
-    note: str | None = Field(
-        description="note", 
-        default="notentoneotn"
-    )
-
-    title_moo: str | None = Field(
-        description="Title For moo",
-        default="Love"
-    )
-
-    birth_date_customer: str | None = Field(
-        description="birth_date_customer", 
-        default="Monday"
-    )
-
-    birth_month_customer: str | None = Field(
-        description="birth_month_customer", 
-        default="January"
-    )
-
-    congenital_disease: str | None = Field(
-        description="congenital_disease", 
-        default="หอบหืด"
+    zodiac_customer_number: int | None = Field(
+        description="Number for zodiac", examples=[0]
     )
     zodiac_customer: str | None = Field(
         description="Zodiac", 
         default="Rat"
     )
+
     payment_status: str | None = Field(
-        description="payment_status", 
-        default="รอการชำระเงิน"
+        description="payment_status", examples=["รอการชำระเงิน"]
     )
-
-    promotion_id: UUID | None = Field(
-        description="promotion_id", 
-        default="CODE110")
-
-    total_price: float | None = Field(
-        description="total_price", 
-        default=580.00)
-
-
-    send_wallpaper_status: str | None = Field(
-        description="Send To mail Status", 
-        default="ยังไม่ดำเนินการ"
-    )
-
-    is_active: bool | None = Field(
-        description="Is Active Order", 
-        default=True
-    )
-    
 
     model_config = {"from_attributes": True}
+
+
+class OrderPromptPayQrDto(BaseModel):
+    order_id: UUID = Field(description="Order id")
+    amount: float = Field(description="Amount to pay")
+    promptpay_id: str = Field(
+        description="PromptPay recipient id (configured server-side)"
+    )
+    promptpay_payload: str = Field(
+        description="EMV QR payload string (frontend can render QR from this)",
+    )

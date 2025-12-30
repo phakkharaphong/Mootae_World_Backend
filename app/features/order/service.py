@@ -1,40 +1,78 @@
-from datetime import datetime
+from __future__ import annotations
+
+from decimal import Decimal, ROUND_HALF_UP
 import random
-import string
 from typing import Literal, TypeAlias
-from fastapi import HTTPException
-import pytz
 from uuid import UUID
-from app.features.order.model import Order
-from app.features.order.dto import OrderCreateDto, OrderGetDto, OrderUpdateDto
-from app.utils.response import PaginatedResponse, Pagination, ResponseModel
+
+from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
+
+from app.core.config import settings
+from app.features.order.dto import (
+    OrderCreateDto,
+    OrderGetDto,
+    OrderPromptPayQrDto,
+    OrderUpdateDto,
+)
+from app.features.order.model import Order
+from app.features.order_type.model import OrderType
+from app.utils.response import PaginatedResponse, Pagination, ResponseModel
 
 from app.utils.sort import SortOrder
 
-OrderSortField: TypeAlias = Literal["first_name_customer", "last_name_customer", "email", "payment_status","send_wallpaper_status","created_at"]
+day_num_maps = [1, 2, 3, 4, 5, 6, 7]
+month_num_maps = [3, 4, 5, 6, 7, 1, 2, 4, 4, 5, 1, 2]
+year_num_maps = [1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5]
+
+luck_type_maps = {
+    "Love": [24, 42, 22, 28, 26],
+    "Charm": [23],
+    "Travel": [27],
+    "Trade": [29],
+    "Work": [45, 46],
+    "Finance": [56, 36, 63],
+    "Health": [46, 45, 59, 95],
+    "Business": [36, 32, 65, 79],
+    "Overall": [15, 39, 92],
+}
+
+luck_num_maps = {
+    1: [4, 5, 9, 0],
+    2: [2, 4, 6, 7, 8, 9, 0],
+    3: [2, 4, 5, 6, 9, 0],
+    4: [2, 5, 6, 7, 0],
+    5: [1, 3, 4, 6, 9, 0],
+    6: [2, 3, 4, 5, 0],
+    7: [2, 4, 5, 6, 8, 9, 0],
+    8: [2, 6, 7, 9, 0],
+    9: [1, 2, 3, 4, 5, 6, 7, 8, 0],
+}
+
+OrderSortField: TypeAlias = Literal[
+    "first_name_customer", "last_name_customer", "email", "payment_status", "created_at"
+]
+
 
 def find_all(
-      db: Session,
-      *,
-      search: str | None = None,
-      sort_by: OrderSortField | None = "created_at",
-      sort_order: SortOrder | None = "desc",
-      is_active: bool | None = None,
-      page: int = 0,
-      limit: int = 100,
-   ):
+    db: Session,
+    *,
+    search: str | None = None,
+    sort_by: OrderSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    page: int = 0,
+    limit: int = 100,
+):
     offset = (page - 1) * limit
 
-    query = db.query(Order).options(joinedload(Order.order_type),joinedload(Order.promotion))
+    query = db.query(Order).options(joinedload(Order.order_type))
 
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-           Order.first_name_customer.ilike(search_term),
-           Order.last_name_customer.ilike(search_term),
-           Order.email.ilike(search_term),
-                             
+            Order.first_name_customer.ilike(search_term),
+            Order.last_name_customer.ilike(search_term),
+            Order.email.ilike(search_term),
         )
     if sort_by:
         sort_column = getattr(Order, sort_by)
@@ -44,16 +82,6 @@ def find_all(
             sort_column = sort_column.asc()
             query = query.order_by(sort_column)
 
-    if is_active is not None:
-        query = query.filter(Order.is_active == is_active)
-
-   #  rows = (
-   #      db.query(Order)
-   #      .options(joinedload(Order.order_type),joinedload(Order.promotion))
-   #      .offset(offset)
-   #      .limit(limit)
-   #      .all()
-   #  )
     data = query.offset(offset).limit(limit).all()
 
     total = query.count()
@@ -65,33 +93,28 @@ def find_all(
 
 
 def find_by_email(
-      db: Session,
-      *,
-      search: str | None = None,
-      sort_by: OrderSortField | None = "created_at",
-      sort_order: SortOrder | None = "desc",
-      is_active: bool | None = None, 
-      email: str, 
-      page: int = 0, 
-      limit: int = 100
-   ):
+    db: Session,
+    *,
+    search: str | None = None,
+    sort_by: OrderSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    email: str,
+    page: int = 0,
+    limit: int = 100,
+):
     offset = (page - 1) * limit
-    query = db.query(Order).options(joinedload(Order.order_type),joinedload(Order.promotion)).filter(Order.email == email)
-   #  rows = (
-   #      db.query(Order)
-   #      .options(joinedload(Order.order_type))
-   #      .filter(Order.email == email)
-   #      .offset(offset)
-   #      .limit(limit)
-   #      .all()
-   #  )
+    query = (
+        db.query(Order)
+        .options(joinedload(Order.order_type))
+        .filter(Order.email == email)
+    )
+
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-           Order.first_name_customer.ilike(search_term),
-           Order.last_name_customer.ilike(search_term),
-           Order.email.ilike(search_term),
-                             
+            Order.first_name_customer.ilike(search_term),
+            Order.last_name_customer.ilike(search_term),
+            Order.email.ilike(search_term),
         )
     if sort_by:
         sort_column = getattr(Order, sort_by)
@@ -100,10 +123,6 @@ def find_by_email(
         else:
             sort_column = sort_column.asc()
             query = query.order_by(sort_column)
-
-    if is_active is not None:
-        query = query.filter(Order.is_active == is_active)
-
 
     data = query.offset(offset).limit(limit).all()
 
@@ -116,10 +135,7 @@ def find_by_email(
     )
 
 
-def find_by_id(
-      db: Session, 
-      id: UUID
-   ):
+def find_by_id(db: Session, id: UUID):
     if id:
         response = db.query(Order).filter(Order.id == id).first()
         if not response:
@@ -128,10 +144,7 @@ def find_by_id(
         return order_get_dto
 
 
-def create(
-      db: Session, 
-      order: OrderCreateDto
-   ):
+def create(db: Session, order: OrderCreateDto):
     day_score = 0
     month_score = 0
     zodiac_score = 0
@@ -141,170 +154,20 @@ def create(
     textlist_zodiac = []
     if not order:
         raise HTTPException(status_code=400, detail="Invalid order data")
-    match (order.birth_date_customer):
-         case ("Sunday"):
-            day_score = 1
-         case ("Monday"):
-            day_score = 2
-         case ("Tuesday"):
-            day_score = 3
-         case ("Wednesday"):
-            day_score = 4
-         case ("Thursday"):
-            day_score = 5
-         case ("Friday"):
-            day_score = 6
-         case ("Saturday"):
-           day_score = 7
-         case _:
-           day_score = 0
 
-    match order.birth_month_customer:
-         case ("November"):
-            month_score = 1
-         case ("December"):
-            month_score = 2
-         case ("January"):
-            month_score = 3
-         case ("February"):
-            month_score = 4
-         case ("March"):
-            month_score = 5
-         case ("April"):
-            month_score = 6
-         case ("May"):
-           month_score = 7
-         case ("June"):
-           month_score = 1
-         case ("July"):
-           month_score = 2
-         case ("August"):
-           month_score = 3
-         case ("September"):
-           month_score = 4
-         case ("October"):
-           month_score = 5
-         case _:
-           month_score = 0
+    orderType = db.query(OrderType).filter(OrderType.id == order.order_type_id).first()
+    if not orderType:
+        raise HTTPException(status_code=404, detail="order type not found")
+    
+    title_score = random.choice(luck_type_maps.get(orderType.type_name, luck_type_maps["Overall"]))
+    textlist_day = luck_num_maps[day_num_maps[order.birth_date_customer_number]]
+    textlist_month = luck_num_maps[month_num_maps[order.birth_month_customer_number]]
+    textlist_zodiac = luck_num_maps[year_num_maps[order.zodiac_customer_number]]
 
-    match order.zodiac_customer:
-       case ("Rat"):
-          zodiac_score = 1
-       case ("Ox"):
-          zodiac_score = 2
-       case ("Tiger"):
-          zodiac_score = 3
-       case ("Rabbit"):
-          zodiac_score = 4
-       case ("Dragon"):
-          zodiac_score = 5
-       case ("Snake"):
-          zodiac_score = 6
-       case ("Horse"):
-          zodiac_score = 7
-       case ("Goat"):
-          zodiac_score = 1
-       case ("Monkey"):
-          zodiac_score = 2
-       case ("Rooster"):
-          zodiac_score = 3
-       case ("Dog"):
-          zodiac_score = 4
-       case ("Pig"):
-          zodiac_score = 5
-       case _:
-          zodiac_score = 0
-
-
-    match (order.title_moo):
-         case ("Love"):
-            title_score = random.choice([24, 42, 22, 28, 26])
-         case ("Charm"):
-            title_score = random.choice([23])
-         case ("Travel"):
-            title_score = random.choice([27])
-         case ("Trade"):
-            title_score = random.choice([29])
-         case ("Work"):
-            title_score = random.choice([45, 46])
-         case ("Finance"):
-            title_score = random.choice([56, 36, 63])
-         case ("Health"):
-            title_score = random.choice([46, 45, 59, 95])
-         case ("Business"):
-            title_score = random.choice([36, 32, 65, 79])
-         case _:
-            title_score = random.choice([15, 39, 92])
-
-    match day_score:
-      case (1):
-         textlist_day.extend([4, 5, 9, 0])
-      case (2): 
-         textlist_day.extend([2, 4, 6, 7, 8, 9, 0])
-      case (3):
-         textlist_day.extend([2, 4, 5, 6, 9, 0])
-      case (4):
-         textlist_day.extend([2, 5, 6, 7, 0])
-      case (5):
-         textlist_day.extend([1, 3, 4, 6, 9, 0])
-      case (6):
-         textlist_day.extend([2, 3, 4, 5, 0])
-      case (7):
-         textlist_day.extend([2, 4, 5, 6, 8, 9, 0])
-      case (8):
-         textlist_day.extend([2, 6, 7, 9, 0])
-      case (9):
-         textlist_day.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
-
-    match month_score:
-      case (1):
-         textlist_month.extend([4, 5, 9, 0])
-      case (2): 
-         textlist_month.extend([2, 4, 6, 7, 8, 9, 0])
-      case (3):
-         textlist_month.extend([2, 4, 5, 6, 9, 0])
-      case (4):
-         textlist_month.extend([2, 5, 6, 7, 0])
-      case (5):
-         textlist_month.extend([1, 3, 4, 6, 9, 0])
-      case (6):
-         textlist_month.extend([2, 3, 4, 5, 0])
-      case (7):
-         textlist_month.extend([2, 4, 5, 6, 8, 9, 0])
-      case (8):
-         textlist_month.extend([2, 6, 7, 9, 0])
-      case (9):
-         textlist_month.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
-
-    match zodiac_score:
-      case (1):
-         textlist_zodiac.extend([4, 5, 9, 0])
-      case (2): 
-         textlist_zodiac.extend([2, 4, 6, 7, 8, 9, 0])
-      case (3):
-         textlist_zodiac.extend([2, 4, 5, 6, 9, 0])
-      case (4):
-         textlist_zodiac.extend([2, 5, 6, 7, 0])
-      case (5):
-         textlist_zodiac.extend([1, 3, 4, 6, 9, 0])
-      case (6):
-         textlist_zodiac.extend([2, 3, 4, 5, 0])
-      case (7):
-         textlist_zodiac.extend([2, 4, 5, 6, 8, 9, 0])
-      case (8):
-         textlist_zodiac.extend([2, 6, 7, 9, 0])
-      case (9):
-         textlist_zodiac.extend([1, 2, 3, 4, 5, 6, 7, 8, 0])
-      
-    lists = textlist_day + textlist_month +  textlist_zodiac
-   #  print("textlist_day: ",textlist_day)
-   #  print("textlist_month: ",textlist_month)
-   #  print("textlist_zodiac: ",textlist_zodiac)
-   #  print("List Is", lists , " and Last :",title_score)
-   # #  for i in  textlist_zodiac:
-   #  print( day_score,month_score,zodiac_score,title_score," ".join(map(str, lists)),sep=" ")
-    full_text = " ".join(map(str, [day_score, month_score, zodiac_score, title_score] + lists))
-
+    lists = textlist_day + textlist_month + textlist_zodiac
+    full_text = " ".join(
+        map(str, [day_score, month_score, zodiac_score, title_score] + lists)
+    )
 
     new_order = Order(
         order_type_id=order.order_type_id,
@@ -312,22 +175,12 @@ def create(
         last_name_customer=order.last_name_customer,
         email=order.email,
         phone=order.phone,
-        congenital_disease=order.congenital_disease,
-        note=order.note,
-        title_moo = order.title_moo,
-        title_moo_number = title_score,
-        birth_date_customer=order.birth_date_customer,
-        birth_month_customer=order.birth_month_customer,
-        zodiac_customer = order.zodiac_customer,
-        full_mootext = full_text,
-        promotion_id=order.promotion_id,
-        total_price=order.total_price,
-        birth_date_customer_number = day_score,
-        birth_month_customer_number = month_score,
-        zodiac_customer_number = zodiac_score,
-        payment_status=order.payment_status,
-        send_wallpaper_status=order.send_wallpaper_status,
-        is_active=True,
+        full_mootext=full_text,
+        total_price=orderType.price,
+        birth_date_customer_number=day_score,
+        birth_month_customer_number=month_score,
+        zodiac_customer_number=zodiac_score,
+        payment_status="Pending",
     )
 
     db.add(new_order)
@@ -335,25 +188,13 @@ def create(
     db.refresh(new_order)
 
     created_dto = OrderGetDto.model_validate(new_order)
-    return ResponseModel(
-       status=201, 
-       message="Created success", 
-       data=created_dto
-   )
+    return ResponseModel(status=201, message="Created success", data=created_dto)
 
 
-def update(
-      db: Session, 
-      id: UUID, 
-      order: OrderUpdateDto
-   ):
-
+def update(db: Session, id: UUID, order: OrderUpdateDto):
     response = db.query(Order).filter(Order.id == id).first()
     if not response:
-        raise HTTPException(
-           status_code=404, 
-           detail="order not found"
-         )
+        raise HTTPException(status_code=404, detail="order not found")
 
     update_data = order.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -362,35 +203,23 @@ def update(
         "order_type_id": response.order_type_id,
         "first_name_customer": response.first_name_customer,
         "last_name_customer": response.last_name_customer,
-        "birth_date_customer": response.birth_date_customer,
-        "birth_month_customer": response.birth_month_customer,
-        "zodiac_customer": response.zodiac_customer,
-        "gender": response.gender,
-        "congenital_disease": response.congenital_disease,
+        "birth_date_customer_number": order.birth_date_customer_number,
+        "birth_month_customer_number": order.birth_month_customer_number,
+        "zodiac_customer_number": order.zodiac_customer_number,
         "phone": response.phone,
         "email": response.email,
         "note": response.note,
-        "promotion_id": response.promotion_id,
         "total_price": response.total_price,
         "payment_status": response.payment_status,
-        "send_wallpaper_status": response.send_wallpaper_status,
-        "is_active": response.is_active
     }
 
     db.commit()
     db.refresh(response)
 
-    return ResponseModel(
-       status=200, 
-       message="Updated success", 
-       data=order_dict
-   )
+    return ResponseModel(status=200, message="Updated success", data=order_dict)
 
 
-def delete_by_id(
-      db: Session, 
-      id: UUID
-):
+def delete_by_id(db: Session, id: UUID):
     response = db.query(Order).filter(Order.id == id).first()
     if not response:
         raise HTTPException(status_code=404, detail="order not found")
@@ -398,8 +227,112 @@ def delete_by_id(
     db.delete(response)
     db.commit()
 
-    return ResponseModel(
-       status=200, 
-       message="Deleted success", 
-       data=id
+    return ResponseModel(status=200, message="Deleted success", data=id)
+
+
+def generate_payment_qr(db: Session, order_id: UUID):
+
+    if not order_id:
+        raise HTTPException(status_code=400, detail="Invalid order id")
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="order not found")
+
+    if order.total_price is None:
+        raise HTTPException(status_code=400, detail="order total_price is missing")
+
+    promptpay_id = settings.PROMPTPAY_ID
+    if not promptpay_id:
+        raise HTTPException(status_code=500, detail="PROMPTPAY_ID is not configured")
+
+    amount_decimal = Decimal(str(order.total_price)).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
     )
+
+    payload = _build_promptpay_payload(promptpay_id=promptpay_id, amount=amount_decimal)
+
+    return OrderPromptPayQrDto(
+        order_id=order_id,
+        amount=float(amount_decimal),
+        promptpay_id=_digits_only(promptpay_id),
+        promptpay_payload=payload,
+    )
+
+
+def _tlv(tag: str, value: str) -> str:
+    length = f"{len(value):02d}"
+    return f"{tag}{length}{value}"
+
+
+def _digits_only(value: str) -> str:
+    return "".join(ch for ch in str(value) if ch.isdigit())
+
+
+def _promptpay_merchant_account_info(promptpay_id: str) -> str:
+    digits = _digits_only(promptpay_id)
+
+    # PromptPay spec (common):
+    # - subtag 01: mobile number (E.164-like, TH=66)
+    # - subtag 02: citizen/tax id (13 digits)
+    # Many Thai bank QR parsers expect mobile in PromptPay format: 0066 + 9 digits
+    # (i.e. 13 digits total) rather than plain "66" prefix.
+    if len(digits) == 10 and digits.startswith("0"):
+        mobile_pp = "0066" + digits[1:]
+        id_subtag = _tlv("01", mobile_pp)
+    elif len(digits) == 11 and digits.startswith("66"):
+        mobile_pp = "0066" + digits[2:]
+        id_subtag = _tlv("01", mobile_pp)
+    elif len(digits) == 13:
+        id_subtag = _tlv("02", digits)
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="PROMPTPAY_ID must be a 10-digit TH mobile (starts with 0) or 13-digit citizen/tax id",
+        )
+
+    aid = _tlv("00", "A000000677010111")
+    return _tlv("29", aid + id_subtag)
+
+
+def _crc16_ccitt_false(data: str) -> str:
+    # CRC-16/CCITT-FALSE
+    # poly=0x1021, init=0xFFFF, xorout=0x0000, refin=false, refout=false
+    crc = 0xFFFF
+    for byte in data.encode("ascii"):
+        crc ^= byte << 8
+        for _ in range(8):
+            if crc & 0x8000:
+                crc = ((crc << 1) & 0xFFFF) ^ 0x1021
+            else:
+                crc = (crc << 1) & 0xFFFF
+    return f"{crc:04X}"
+
+
+def _build_promptpay_payload(*, promptpay_id: str, amount: Decimal) -> str:
+    # Mandatory fields
+    payload = ""
+    payload += _tlv("00", "01")  # Payload Format Indicator
+    payload += _tlv("01", "12")  # Point of Initiation Method (dynamic)
+    payload += _promptpay_merchant_account_info(promptpay_id)
+    payload += _tlv("52", "0000")  # Merchant Category Code
+    payload += _tlv("53", "764")  # THB
+
+    # Amount (2 decimals)
+    amount_str = f"{amount:.2f}"
+    payload += _tlv("54", amount_str)
+
+    payload += _tlv("58", "TH")  # Country Code
+
+    # Optional in EMV, but some bank apps are strict and fail to parse without them.
+    merchant_name = (getattr(settings, "PROMPTPAY_MERCHANT_NAME", None) or "").strip()
+    merchant_city = (getattr(settings, "PROMPTPAY_MERCHANT_CITY", None) or "").strip()
+    if merchant_name:
+        payload += _tlv("59", merchant_name[:25])
+    if merchant_city:
+        payload += _tlv("60", merchant_city[:15])
+
+    # CRC
+    payload_for_crc = payload + "6304"
+    payload += _tlv("63", _crc16_ccitt_false(payload_for_crc))
+    return payload

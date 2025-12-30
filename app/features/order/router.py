@@ -11,6 +11,7 @@ from app.features.order.service import (
     find_all,
     find_by_email,
     find_by_id,
+    generate_payment_qr,
     create,
     update,
     delete_by_id,
@@ -30,25 +31,24 @@ router = APIRouter(
     response_model=PaginatedResponse[OrderGetDto],
     tags=["order"],
     summary="Find Order",
-    dependencies=[Depends(require_admin)]
+    dependencies=[Depends(require_admin)],
 )
 async def get_all_order(
     search: str | None = None,
     sort_by: OrderSortField | None = "created_at",
     sort_order: SortOrder | None = "desc",
-    is_active: bool | None = None,
     page: int = 1,
     limit: int = 100,
     db: Session = Depends(get_db),
 ):
     return find_all(
-        db, 
+        db,
         search=search,
         sort_by=sort_by,
         sort_order=sort_order,
-        is_active=is_active,
         page=page,
-        limit=limit,)
+        limit=limit,
+    )
 
 
 @router.get(
@@ -58,16 +58,23 @@ async def get_all_order(
     summary="Find Order by email",
 )
 async def get_order_by_email(
-    email: str, 
-    page: int = 1, 
-    limit: int = 100, 
+    email: str,
+    page: int = 1,
+    limit: int = 100,
     search: str | None = None,
     sort_by: OrderSortField | None = "created_at",
     sort_order: SortOrder | None = "desc",
-    is_active: bool | None = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    return find_by_email(db=db, search=search,sort_by=sort_by, sort_order=sort_order, is_active=is_active, email=email, page=page, limit=limit)
+    return find_by_email(
+        db=db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        email=email,
+        page=page,
+        limit=limit,
+    )
 
 
 @router.get(
@@ -76,11 +83,17 @@ async def get_order_by_email(
     tags=["order"],
     summary="Find Order by id",
 )
-async def get_order_by_id(
-    id: UUID, 
-    db: Session = Depends(get_db)
-):
+async def get_order_by_id(id: UUID, db: Session = Depends(get_db)):
     return find_by_id(db=db, id=id)
+
+
+@router.get(
+    "/payment/{id}",
+    tags=["order"],
+    summary="Get PromptPay QR payload for an order",
+)
+async def get_order_payment_qr(id: UUID, db: Session = Depends(get_db)):
+    return generate_payment_qr(db=db, order_id=id)
 
 
 @router.post(
@@ -89,10 +102,7 @@ async def get_order_by_id(
     tags=["order"],
     summary="Create Order",
 )
-async def create_order(
-    order: OrderCreateDto, 
-    db: Session = Depends(get_db)
-):
+async def create_order(order: OrderCreateDto, db: Session = Depends(get_db)):
     return create(db=db, order=order)
 
 
@@ -101,13 +111,9 @@ async def create_order(
     response_model=ResponseModel,
     tags=["order"],
     summary="Update Order",
-    dependencies=[Depends(require_admin)]
+    dependencies=[Depends(require_admin)],
 )
-async def update_order(
-    id: UUID, 
-    order: OrderUpdateDto, 
-    db: Session = Depends(get_db)
-):
+async def update_order(id: UUID, order: OrderUpdateDto, db: Session = Depends(get_db)):
     return update(db=db, id=id, order=order)
 
 
@@ -116,10 +122,7 @@ async def update_order(
     response_model=ResponseDeleteModel,
     tags=["order"],
     summary="Delete Order",
-    dependencies=[Depends(require_admin)]
+    dependencies=[Depends(require_admin)],
 )
-async def delete_order(
-    id: UUID, 
-    db: Session = Depends(get_db)
-):
+async def delete_order(id: UUID, db: Session = Depends(get_db)):
     return delete_by_id(db, id)

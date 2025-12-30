@@ -90,6 +90,7 @@ def create(
     new_order_type = OrderType(
         type_name=order_type.type_name,
         price=order_type.price,
+        key=order_type.key,
         is_active=True,
     )
 
