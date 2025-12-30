@@ -12,7 +12,7 @@ class OrderGetDto(BaseModel):
         default="EXasfew565d2"
     )
 
-    order_type_id: str | None = Field(
+    order_type_id: UUID | None = Field(
         description="order_type_id", 
         default="EXasfew565d2"
     )

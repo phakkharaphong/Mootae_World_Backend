@@ -15,6 +15,7 @@ from app.features.category.model import Category
 from app.features.footer_website.model import FooterWebsite
 from app.features.location.model import Province, Zone
 from app.features.order.model import Order
+from app.features.order_payment.model import OrderPayment
 from app.features.order_type.model import OrderType
 from app.features.promotion.model import Promotion
 from app.features.slide_activity.model import SlideActivity
