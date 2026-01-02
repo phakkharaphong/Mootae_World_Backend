@@ -15,7 +15,7 @@ from app.features.slide_news.service import (
     update_by_id,
     delete_by_id,
 )
-from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.response import PaginatedResponse, ResponseModel
 
 
 router = APIRouter(
@@ -70,7 +70,7 @@ async def update_slide_news(
 
 @router.delete(
     "/{id}",
-    response_model=ResponseDeleteModel,
+    response_model=ResponseModel,
     tags=["slide-new"],
     summary="Delete Slide News",
 )

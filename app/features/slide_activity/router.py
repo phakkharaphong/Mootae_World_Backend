@@ -15,7 +15,7 @@ from app.features.slide_activity.service import (
     update_by_id,
     delete_by_id,
 )
-from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
+from app.utils.response import PaginatedResponse, ResponseModel
 
 
 router = APIRouter(
@@ -72,7 +72,7 @@ async def update_slide_activity(
 
 @router.delete(
     "/{id}",
-    response_model=ResponseDeleteModel,
+    response_model=ResponseModel,
     tags=["slide-activity"],
     summary="Delete Slide Activity",
 )
