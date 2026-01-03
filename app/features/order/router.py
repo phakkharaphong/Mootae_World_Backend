@@ -8,11 +8,14 @@ from app.features.auth.router import require_admin
 from app.features.order.dto import OrderCreateDto, OrderGetDto, OrderUpdateDto
 from app.features.order.service import (
     OrderSortField,
+    cancel_order_by_id,
+    complete_order_by_id,
     find_all,
     find_by_email,
     find_by_id,
     generate_payment_qr,
     create,
+    reject_order_by_id,
     update,
     delete_by_id,
 )
@@ -126,3 +129,32 @@ async def update_order(id: UUID, order: OrderUpdateDto, db: Session = Depends(ge
 )
 async def delete_order(id: UUID, db: Session = Depends(get_db)):
     return delete_by_id(db, id)
+
+# @router.patch(
+#     "/{id}/cancel",
+#     response_model=ResponseModel,
+#     tags=["order"],
+#     summary="Cancel Order",
+# )
+# async def cancel_order(id: UUID, db: Session = Depends(get_db)):
+#     return cancel_order_by_id(db=db, id=id)
+
+@router.patch(
+    "/{id}/complete",
+    response_model=ResponseModel,
+    tags=["order"],
+    summary="Complete Order",
+    dependencies=[Depends(require_admin)],
+)
+async def complete_order(id: UUID, db: Session = Depends(get_db)):
+    return complete_order_by_id(db=db, id=id)
+
+@router.patch(
+    "/{id}/reject",
+    response_model=ResponseModel,
+    tags=["order"],
+    summary="Reject Order",
+    dependencies=[Depends(require_admin)],
+)
+async def reject_order(id: UUID, db: Session = Depends(get_db)):
+    return reject_order_by_id(db=db, id=id)

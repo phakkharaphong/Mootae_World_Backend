@@ -229,6 +229,41 @@ def delete_by_id(db: Session, id: UUID):
 
     return ResponseModel(status=200, message="Deleted success", data=id)
 
+def complete_order_by_id(db: Session, id: UUID):
+    response = db.query(Order).filter(Order.id == id).first()
+    if not response:
+        raise HTTPException(status_code=404, detail="order not found")
+
+    response.payment_status = "Completed"
+
+    db.commit()
+    db.refresh(response)
+
+    return ResponseModel(status=200, message="Order completed successfully", data=id)
+
+def cancel_order_by_id(db: Session, id: UUID):
+    response = db.query(Order).filter(Order.id == id).first()
+    if not response:
+        raise HTTPException(status_code=404, detail="order not found")
+
+    response.payment_status = "Cancelled"
+
+    db.commit()
+    db.refresh(response)
+
+    return ResponseModel(status=200, message="Order cancelled successfully", data=id)
+
+def reject_order_by_id(db: Session, id: UUID):
+    response = db.query(Order).filter(Order.id == id).first()
+    if not response:
+        raise HTTPException(status_code=404, detail="order not found")
+
+    response.payment_status = "Rejected"
+
+    db.commit()
+    db.refresh(response)
+
+    return ResponseModel(status=200, message="Order rejected successfully", data=id)
 
 def generate_payment_qr(db: Session, order_id: UUID):
 

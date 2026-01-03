@@ -7,6 +7,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from app.features.order.model import Order
 from app.features.order_payment.dto import OrderPaymentCreateDto, OrderPaymentGetDto
 from app.features.order_payment.model import OrderPayment
 from app.utils.response import PaginatedResponse, Pagination, ResponseModel
@@ -71,6 +72,12 @@ def create(db: Session, payment: OrderPaymentCreateDto):
     )
 
     db.add(new_payment)
+
+    order = db.query(Order).filter(Order.id == payment.order_id).first()
+    if order:
+        order.payment_status = "Verifying"
+        db.add(order)
+
     db.commit()
     db.refresh(new_payment)
 
