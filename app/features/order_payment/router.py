@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.features.auth.router import require_admin
-from app.features.order_payment.dto import OrderPaymentCreateDto, OrderPaymentGetDto
-from app.features.order_payment.service import create, find_all, find_by_id
+from app.features.order_payment.dto import OrderPaymentCreateDto, OrderPaymentGetDto, OrderPaymentJoinGetDto
+from app.features.order_payment.service import create, find_all, find_by_Order_id, find_by_id
 from app.utils.response import PaginatedResponse, ResponseModel
 
 
@@ -43,6 +43,19 @@ async def get_order_payment_by_id(
     db: Session = Depends(get_db),
 ):
     return find_by_id(db=db, id=id)
+
+
+@router.get(
+    "/OrderId/{OrderId}",
+    response_model=OrderPaymentJoinGetDto,
+    tags=["order-payment"],
+    summary="Find Order Payment by Order id",
+)
+async def get_order_payment_by_orderid(
+    OrderId: UUID,
+    db: Session = Depends(get_db),
+):
+    return find_by_Order_id(db=db, OrderId=OrderId)
 
 
 @router.post(

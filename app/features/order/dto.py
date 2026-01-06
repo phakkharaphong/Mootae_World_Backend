@@ -139,3 +139,51 @@ class OrderPromptPayQrDto(BaseModel):
     promptpay_payload: str = Field(
         description="EMV QR payload string (frontend can render QR from this)",
     )
+
+class OrderPaymentGetDto(BaseModel):
+    id: UUID | None = Field(description="order id", examples=["EXasfew565d2"])
+
+    order_type_id: UUID | None = Field(
+        description="order_type_id", examples=["EXasfew565d2"]
+    )
+    order_type: OrderTypeGetJoinDto | None = None
+
+    first_name_customer: str | None = Field(
+        description="First Name", examples=["Phakkharaphong"]
+    )
+
+    last_name_customer: str | None = Field(
+        description="Last Name", examples=["Charoenphon"]
+    )
+
+    phone: str | None = Field(description="phone", examples=["0943955615"])
+
+    email: str | None = Field(description="email", examples=["example@gmail.com"])
+
+    payment_status: str | None = Field(
+        description="payment_status", examples=["รอการชำระเงิน"]
+    )
+
+    birth_date_customer_number: int | None = Field(
+        description="Number for date", examples=[0]
+    )
+
+    birth_month_customer_number: int | None = Field(
+        description="Number for month", examples=[0]
+    )
+
+    zodiac_customer_number: int | None = Field(
+        description="Number for zodiac", examples=[0]
+    )
+
+    total_price: float | None = Field(description="total_price", examples=[580.00])
+
+    created_at: datetime | None = Field(
+        description="Created time", examples=[datetime.now(timezone.utc)]
+    )
+
+    updated_at: datetime | None = Field(
+        description="Updated time", examples=[datetime.now(timezone.utc)]
+    )
+
+    model_config = {"from_attributes": True}

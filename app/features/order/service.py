@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
+from sqlalchemy import or_
+
 import random
 from typing import Literal, TypeAlias
 from uuid import UUID
@@ -70,10 +72,12 @@ def find_all(
     if search:
         search_term = f"%{search}%"
         query = query.filter(
-            Order.first_name_customer.ilike(search_term),
-            Order.last_name_customer.ilike(search_term),
-            Order.email.ilike(search_term),
-        )
+            or_(
+                Order.first_name_customer.ilike(search_term),
+                Order.last_name_customer.ilike(search_term),
+                Order.email.ilike(search_term),
+            )
+        )       
     if sort_by:
         sort_column = getattr(Order, sort_by)
         if sort_order == "desc":

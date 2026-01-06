@@ -17,6 +17,13 @@ from app.features.auth.router import router as auth_router
 from app.features.wallpaper_collection.router import (
     router as wallpaper_collection_router,
 )
+from app.features.contactus.router import(
+    router as untactus_router
+)
+
+from app.features.externalbi.router import(
+    router as externalbi_router
+)
 from app.features.wallpaper.router import router as wallpaper_router
 from app.features.email.router import router as email_router
 Base.metadata.create_all(bind=engine)
@@ -69,5 +76,7 @@ api_router.include_router(slide_activity_router)
 api_router.include_router(slide_news_router)
 api_router.include_router(wallpaper_router)
 api_router.include_router(wallpaper_collection_router)
+api_router.include_router(untactus_router)
+api_router.include_router(externalbi_router)
 
 app.include_router(api_router)

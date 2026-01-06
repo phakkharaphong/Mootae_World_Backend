@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from sqlalchemy import UUID, Column, DateTime, ForeignKey, Numeric, String
 import uuid
 from app.core.database import Base
-
+from sqlalchemy.orm import relationship
 
 class OrderPayment(Base):
     __tablename__ = "order_payment"
@@ -19,3 +19,5 @@ class OrderPayment(Base):
     order_id = Column(UUID, ForeignKey("order.id"), index=True)
 
     created_at = Column(DateTime(timezone=True), default=datetime.now(timezone.utc))
+
+    orders = relationship("Order", back_populates="order_payment")

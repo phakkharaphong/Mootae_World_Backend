@@ -42,3 +42,4 @@ class Order(Base):
     updated_by = Column(String(50))
 
     order_type = relationship("OrderType", back_populates="orders")
+    order_payment = relationship("OrderPayment", back_populates="orders")

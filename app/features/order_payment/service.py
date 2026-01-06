@@ -5,10 +5,10 @@ from decimal import Decimal
 from uuid import UUID
 
 from fastapi import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.features.order.model import Order
-from app.features.order_payment.dto import OrderPaymentCreateDto, OrderPaymentGetDto
+from app.features.order_payment.dto import OrderPaymentCreateDto, OrderPaymentGetDto, OrderPaymentJoinGetDto
 from app.features.order_payment.model import OrderPayment
 from app.utils.response import PaginatedResponse, Pagination, ResponseModel
 
@@ -23,6 +23,21 @@ def _to_get_dto(payment: OrderPayment) -> OrderPaymentGetDto:
     return OrderPaymentGetDto(
         id=payment.id,
         order_id=payment.order_id,
+        amount=_decimal_to_float(payment.amount),
+        slip_url=payment.slip_url,
+        payment_date=payment.payment_date.isoformat() if payment.payment_date else None,
+        status=payment.status,
+        admin_note=payment.admin_note,
+        created_at=payment.created_at,
+    )
+
+
+
+def _to_get_order_dto(payment: OrderPayment) -> OrderPaymentJoinGetDto:
+    return OrderPaymentJoinGetDto(
+        id=payment.id,
+        order_id=payment.order_id,
+        order=payment.orders,
         amount=_decimal_to_float(payment.amount),
         slip_url=payment.slip_url,
         payment_date=payment.payment_date.isoformat() if payment.payment_date else None,
@@ -57,6 +72,16 @@ def find_by_id(db: Session, id: UUID):
         raise HTTPException(status_code=404, detail="payment not found")
 
     return _to_get_dto(payment)
+
+def find_by_Order_id(db: Session, OrderId: UUID):
+    if not OrderId:
+        raise HTTPException(status_code=400, detail="Invalid payment OrderId")
+
+    payment = db.query(OrderPayment).options(joinedload(OrderPayment.orders)).filter(OrderPayment.order_id == OrderId).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="payment not found")
+
+    return _to_get_order_dto(payment)
 
 
 def create(db: Session, payment: OrderPaymentCreateDto):

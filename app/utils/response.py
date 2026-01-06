@@ -32,3 +32,8 @@ class ResponseByIdModel(BaseModel, Generic[T]):
     status: int
     message: str
     data: List[T]
+
+
+class ResponseBiModel(BaseModel, Generic[T]):
+    message: str
+    data: List[T]

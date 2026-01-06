@@ -33,6 +33,7 @@ router = APIRouter(
 async def get_all_blog( 
     search: str | None = None,
     sort_by: BlogSortField | None = "created_at",
+    category_id: str | None = None,
     sort_order: SortOrder | None = "desc",
     is_active: bool | None = None,
     page: int = 1,
@@ -41,6 +42,7 @@ async def get_all_blog(
     return find_all(
         db,
         search=search,
+        category_id=category_id,
         sort_by=sort_by,
         sort_order=sort_order,
         is_active=is_active,

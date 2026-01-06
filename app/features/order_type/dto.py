@@ -65,8 +65,6 @@ class OrderTypeGetJoinDto(BaseModel):
         description="price", 
         default=580.00
     )
-    
-    is_active: bool | None = None
 
     model_config = {
         "from_attributes": True
