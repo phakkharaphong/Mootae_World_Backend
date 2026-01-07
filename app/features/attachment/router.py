@@ -171,27 +171,18 @@ def add_text_to_image(
 ):
     parsed = urlparse(image_url)
 
-    try:
-        if parsed.path.startswith("/uploads/"):
-            filename = Path(parsed.path).name
-            local_path = UPLOAD_DIR / filename
+    if "/uploads/" in parsed.path:
+        filename = Path(parsed.path).name
+        local_path = UPLOAD_DIR / filename
 
-            if not local_path.exists():
-                raise HTTPException(status_code=404, detail="Image not found")
+        if not local_path.exists():
+            raise HTTPException(404, "Image not found")
 
-            image = Image.open(local_path).convert("RGBA")
-
-        else:
-            response = requests.get(image_url, timeout=10)
-            response.raise_for_status()
-            image = Image.open(io.BytesIO(response.content)).convert("RGBA")
-
-    except requests.exceptions.Timeout:
-        raise HTTPException(status_code=504, detail="Image server timeout")
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=400, detail=f"Cannot load image: {e}")
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Invalid image: {e}")
+        image = Image.open(local_path).convert("RGBA")
+    else:
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        image = Image.open(io.BytesIO(response.content)).convert("RGBA")
 
     new_size = (1024, 1536)
     image = image.resize(new_size, Image.Resampling.LANCZOS)
