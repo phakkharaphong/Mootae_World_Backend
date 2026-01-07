@@ -1,6 +1,7 @@
 import io
 from pathlib import Path
 import shutil
+from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 import uuid
 from io import BytesIO
@@ -160,39 +161,54 @@ async def upload_wallpaper(request: Request, file: UploadFile = File(...)):
     }
 
 @router.post(
-        "/image/text",
-        description="Add Text to Image"
-        )
+    "/image/text",
+    description="Add Text to Image"
+)
 def add_text_to_image(
     request: Request,
     text: str,
     image_url: str,
 ):
-    response = requests.get(image_url, timeout=50)
-    response.raise_for_status()
+    parsed = urlparse(image_url)
 
-    image = Image.open(io.BytesIO(response.content)).convert("RGBA")
+    try:
+        if parsed.path.startswith("/uploads/"):
+            filename = Path(parsed.path).name
+            local_path = UPLOAD_DIR / filename
+
+            if not local_path.exists():
+                raise HTTPException(404, "Image not found on server")
+
+            image = Image.open(local_path).convert("RGBA")
+        else:
+            response = requests.get(image_url, timeout=10)
+            response.raise_for_status()
+            image = Image.open(io.BytesIO(response.content)).convert("RGBA")
+
+    except requests.exceptions.Timeout:
+        raise HTTPException(504, "Image server timeout")
+    except requests.exceptions.RequestException as e:
+        raise HTTPException(400, f"Cannot load image: {e}")
+    except Exception as e:
+        raise HTTPException(400, f"Invalid image: {e}")
 
     new_size = (1024, 1536)
     image = image.resize(new_size, Image.Resampling.LANCZOS)
 
     draw = ImageDraw.Draw(image)
-    # font = ImageFont.truetype("fonts/THSarabunNew.ttf", 40)
     font = ImageFont.truetype("app/assets/fonts/Ubuntu-Regular.ttf", 100)
 
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
-
     x = (image.width - text_width) // 2
 
- 
     draw.text(
-    (x, 1350),
-    text,
-    fill="#FFD700",      
-    font=font,
-    stroke_width=3,
-    stroke_fill="#5C4A00"
+        (x, 1350),
+        text,
+        fill="#FFD700",
+        font=font,
+        stroke_width=3,
+        stroke_fill="#5C4A00"
     )
 
     filename = f"{uuid.uuid4()}.png"
