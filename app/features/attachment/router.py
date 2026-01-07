@@ -168,7 +168,7 @@ def add_text_to_image(
     text: str,
     image_url: str,
 ):
-    response = requests.get(image_url, timeout=10)
+    response = requests.get(image_url, timeout=50)
     response.raise_for_status()
 
     image = Image.open(io.BytesIO(response.content)).convert("RGBA")
