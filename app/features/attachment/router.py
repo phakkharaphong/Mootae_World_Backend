@@ -178,21 +178,30 @@ def add_text_to_image(
 
     draw = ImageDraw.Draw(image)
     # font = ImageFont.truetype("fonts/THSarabunNew.ttf", 40)
-    font = ImageFont.truetype("app/assets/fonts/Ubuntu-Regular.ttf", 35)
+    font = ImageFont.truetype("app/assets/fonts/Ubuntu-Regular.ttf", 100)
 
     bbox = draw.textbbox((0, 0), text, font=font)
     text_width = bbox[2] - bbox[0]
 
     x = (image.width - text_width) // 2
 
-    draw.text((x, 1390), text, fill="#151212", font=font, stroke_width=2, stroke_fill="#DCD5D5")
-    buf = io.BytesIO()
-    image.save(buf, format="PNG")
-    buf.seek(0)
+ 
+    draw.text(
+    (x, 1350),
+    text,
+    fill="#FFD700",      
+    font=font,
+    stroke_width=3,
+    stroke_fill="#5C4A00"
+    )
+
     filename = f"{uuid.uuid4()}.png"
     file_path = UPLOAD_DIR / filename
     image.save(file_path, format="PNG")
 
-    # file_url = f"{request.base_url}uploads/{filename}"
+    file_url = f"{request.base_url}uploads/{filename}"
 
-    return StreamingResponse(buf, media_type="image/png")
+    return {
+        "message": "success",
+        "file_url": file_url
+    }

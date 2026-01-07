@@ -2,6 +2,8 @@ from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from fastapi_mail import ConnectionConfig, FastMail, MessageSchema
 
+from app.features.email.dto import SendEmail
+
 BASE_DIR = Path(__file__).resolve().parents[2]
 
 
@@ -25,24 +27,19 @@ router = APIRouter(
 @router.post("/send-email")
 async def send_email(
     background_tasks: BackgroundTasks,
-    subject: str,
-    email: str,
-    title: str, 
-    name: str, 
-    img_Url: str, 
-    detail: str
+    SendEmail: SendEmail
     ):
 
     
     message = MessageSchema(
-        subject=subject,
-        recipients=[email],
+        subject=SendEmail.subject,
+        recipients=[SendEmail.email],
         template_body={
         "body": {
-            "title": title,
-            "name": name,
-            "detail": detail,
-            "img": img_Url
+            "title": SendEmail.title,
+            "name": SendEmail.name,
+            "detail": SendEmail.detail,
+            "img": SendEmail.img_Url
         }
         },
         subtype="html"

@@ -25,6 +25,16 @@ class OrderGetDto(BaseModel):
 
     email: str | None = Field(description="email", examples=["example@gmail.com"])
 
+    wallpaper_url: str| None = Field(
+        description="wallpaper URL",
+        examples=["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD5EUXKEZYWRihvBte-enLd1V8C0OPK6lXKg&s"]
+    )
+    full_mootext: str| None = Field(
+        description="full_mootext",
+        examples=["2 1 4 24"]
+    )
+
+
     payment_status: str | None = Field(
         description="payment_status", examples=["รอการชำระเงิน"]
     )
@@ -82,6 +92,10 @@ class OrderCreateDto(BaseModel):
     birth_month_customer_number: int = Field(
         description="Number for month", examples=[0]
     )
+    wallpaper_url: str = Field(
+        description="wallpaper URL",
+        examples=["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD5EUXKEZYWRihvBte-enLd1V8C0OPK6lXKg&s"]
+    )
 
     zodiac_customer_number: int = Field(
         description="Number for zodiac", examples=[0]
@@ -127,6 +141,10 @@ class OrderUpdateDto(BaseModel):
         description="payment_status", examples=["รอการชำระเงิน"]
     )
 
+    wallpaper_url: str| None = Field(
+        description="wallpaper URL",
+        examples=["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD5EUXKEZYWRihvBte-enLd1V8C0OPK6lXKg&s"]
+    )
     model_config = {"from_attributes": True}
 
 

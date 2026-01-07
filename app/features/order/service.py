@@ -169,8 +169,11 @@ def create(db: Session, order: OrderCreateDto):
     textlist_zodiac = luck_num_maps[year_num_maps[order.zodiac_customer_number]]
 
     lists = textlist_day + textlist_month + textlist_zodiac
+    # full_text = " ".join(
+    #     map(str, [day_score, month_score, zodiac_score, title_score] + lists)
+    # )
     full_text = " ".join(
-        map(str, [day_score, month_score, zodiac_score, title_score] + lists)
+        map(str, [order.birth_date_customer_number, order.birth_month_customer_number, order.zodiac_customer_number, title_score])
     )
 
     new_order = Order(
@@ -181,9 +184,10 @@ def create(db: Session, order: OrderCreateDto):
         phone=order.phone,
         full_mootext=full_text,
         total_price=orderType.price,
-        birth_date_customer_number=day_score,
-        birth_month_customer_number=month_score,
-        zodiac_customer_number=zodiac_score,
+        wallpaper_url=order.wallpaper_url,
+        birth_date_customer_number=order.birth_date_customer_number,
+        birth_month_customer_number=order.birth_month_customer_number,
+        zodiac_customer_number=order.zodiac_customer_number,
         payment_status="Pending",
     )
 
@@ -210,9 +214,9 @@ def update(db: Session, id: UUID, order: OrderUpdateDto):
         "birth_date_customer_number": order.birth_date_customer_number,
         "birth_month_customer_number": order.birth_month_customer_number,
         "zodiac_customer_number": order.zodiac_customer_number,
+        "wallpaper_url": order.wallpaper_url,
         "phone": response.phone,
         "email": response.email,
-        "note": response.note,
         "total_price": response.total_price,
         "payment_status": response.payment_status,
     }
