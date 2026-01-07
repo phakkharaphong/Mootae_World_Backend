@@ -1,10 +1,10 @@
 import io
 from pathlib import Path
 import shutil
-from urllib.parse import urlparse
 from PIL import Image, ImageDraw, ImageFont
 import uuid
 from io import BytesIO
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, File, Request, UploadFile, HTTPException
 from fastapi.responses import StreamingResponse
@@ -177,20 +177,21 @@ def add_text_to_image(
             local_path = UPLOAD_DIR / filename
 
             if not local_path.exists():
-                raise HTTPException(404, "Image not found on server")
+                raise HTTPException(status_code=404, detail="Image not found")
 
             image = Image.open(local_path).convert("RGBA")
+
         else:
             response = requests.get(image_url, timeout=10)
             response.raise_for_status()
             image = Image.open(io.BytesIO(response.content)).convert("RGBA")
 
     except requests.exceptions.Timeout:
-        raise HTTPException(504, "Image server timeout")
+        raise HTTPException(status_code=504, detail="Image server timeout")
     except requests.exceptions.RequestException as e:
-        raise HTTPException(400, f"Cannot load image: {e}")
+        raise HTTPException(status_code=400, detail=f"Cannot load image: {e}")
     except Exception as e:
-        raise HTTPException(400, f"Invalid image: {e}")
+        raise HTTPException(status_code=400, detail=f"Invalid image: {e}")
 
     new_size = (1024, 1536)
     image = image.resize(new_size, Image.Resampling.LANCZOS)
