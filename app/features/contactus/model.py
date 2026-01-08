@@ -6,7 +6,7 @@ from app.core.database import Base
 
 
 class ContactUs(Base):
-    __tablename__ = "Contactus"
+    __tablename__ = "contactus"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 

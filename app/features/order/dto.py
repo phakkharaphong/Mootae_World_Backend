@@ -8,6 +8,8 @@ from app.features.order_type.dto import OrderTypeGetJoinDto
 class OrderGetDto(BaseModel):
     id: UUID | None = Field(description="order id", examples=["EXasfew565d2"])
 
+    order_no: str | None = Field(description="Order Number", examples=["phak5280K1Pt"])
+
     order_type_id: UUID | None = Field(
         description="order_type_id", examples=["EXasfew565d2"]
     )
@@ -72,6 +74,7 @@ class OrderCreateDto(BaseModel):
     order_type_id: UUID | None = Field(
         description="order_type_id", examples=["EXasfew565d2"]
     )
+    # order_number: str | None = Field(description="Order Number", examples=["phak5280K1Pt"])
 
     first_name_customer: str | None = Field(
         description="First Name", examples=["Phakkharaphong"]
@@ -108,6 +111,8 @@ class OrderUpdateDto(BaseModel):
     order_type_id: str | None = Field(
         description="order_type_id", examples=["EXasfew565d2"]
     )
+
+    
 
     first_name_customer: str | None = Field(
         description="First Name", examples=["Phakkharaphong"]
@@ -161,6 +166,8 @@ class OrderPromptPayQrDto(BaseModel):
 class OrderPaymentGetDto(BaseModel):
     id: UUID | None = Field(description="order id", examples=["EXasfew565d2"])
 
+    order_number: str | None = Field(description="Order Number", examples=["phak5280K1Pt"])
+    
     order_type_id: UUID | None = Field(
         description="order_type_id", examples=["EXasfew565d2"]
     )

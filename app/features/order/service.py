@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from decimal import Decimal, ROUND_HALF_UP
+import string
 from sqlalchemy import or_
 
 import random
@@ -175,9 +176,18 @@ def create(db: Session, order: OrderCreateDto):
     full_text = " ".join(
         map(str, [order.birth_date_customer_number, order.birth_month_customer_number, order.zodiac_customer_number, title_score])
     )
+    split_text = order.email[:4]
+    number_ran = random.randint(1000,9999)
+    length = 4
+    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    full_text_order = "".join(
+            map(str, [split_text,number_ran,random_string])
+    )
+
 
     new_order = Order(
         order_type_id=order.order_type_id,
+        order_no=full_text_order,
         first_name_customer=order.first_name_customer,
         last_name_customer=order.last_name_customer,
         email=order.email,

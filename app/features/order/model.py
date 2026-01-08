@@ -19,6 +19,7 @@ class Order(Base):
     __tablename__ = "order"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    order_no = Column(String(50), nullable=False)
     first_name_customer = Column(String(150), nullable=False)
     last_name_customer = Column(String(150), nullable=False)
     email = Column(String(100), nullable=False)
