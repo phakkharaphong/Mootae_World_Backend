@@ -155,6 +155,7 @@ class OrderUpdateDto(BaseModel):
 
 class OrderPromptPayQrDto(BaseModel):
     order_id: UUID = Field(description="Order id")
+    order_no: str = Field(description="Order Number")
     amount: float = Field(description="Amount to pay")
     promptpay_id: str = Field(
         description="PromptPay recipient id (configured server-side)"

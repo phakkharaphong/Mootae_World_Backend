@@ -18,6 +18,7 @@ from app.features.order.service import (
     reject_order_by_id,
     update,
     delete_by_id,
+    find_by_ordernumber
 )
 from app.utils.response import PaginatedResponse, ResponseDeleteModel, ResponseModel
 from app.utils.sort import SortOrder
@@ -75,6 +76,31 @@ async def get_order_by_email(
         sort_by=sort_by,
         sort_order=sort_order,
         email=email,
+        page=page,
+        limit=limit,
+    )
+
+@router.get(
+    "/by-order-number/{order_no}",
+    response_model=PaginatedResponse[OrderGetDto],
+    tags=["order"],
+    summary="Find Order by Order Number",
+)
+async def get_order_by_order_number(
+    order_no: str,
+    page: int = 1,
+    limit: int = 100,
+    search: str | None = None,
+    sort_by: OrderSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    db: Session = Depends(get_db),
+):
+    return find_by_ordernumber(
+        db=db,
+        search=search,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        order_no=order_no,
         page=page,
         limit=limit,
     )

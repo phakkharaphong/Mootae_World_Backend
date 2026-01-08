@@ -1,23 +1,101 @@
+<!DOCTYPE html>
 <html>
+<body style="margin:0; padding:0; background-color:#f2f4f6; font-family: Arial, Helvetica, sans-serif;">
 
-<body style="margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif;">
-    <div style="width: 100%; background: #efefef; border-radius: 10px; padding: 10px;">
-        <div style="margin: 0 auto; width: 90%; text-align: center;">
-            <h1 style="background-color: rgba(0, 53, 102, 1); padding: 5px 10px; border-radius: 5px; color: white;">{{
-                body.title }}</h1>
-            <div
-                style="margin: 30px auto; background: white; width: 40%; border-radius: 10px; padding: 50px; text-align: center;">
-                <h3 style="margin-bottom: 100px; font-size: 24px;">{{ body.name }}!</h3>
-                <p style="margin-bottom: 30px;">{{body.detail}}</p>
-                <img src="{{ body.img }}" alt="image"
-                    style="width: 100%; max-width: 300px; margin: 20px auto; display: block; border-radius: 10px;" />
-                <a style="display: block; margin: 0 auto; border: none; background-color: rgb(181, 241, 165); color: white; width: 200px; line-height: 24px; padding: 10px; font-size: 24px; border-radius: 10px; cursor: pointer; text-decoration: none;"
-                    href="{{ body.img }}" target="_blank" download="w3logo">
-                    คลิ๊กเพื่อดูตัวอย่างภาพ
-                </a> 
+    <div style="width:100%; padding:20px 0;">
+        <div style="
+            max-width:600px;
+            margin:0 auto;
+            background:#ffffff;
+            border-radius:12px;
+            overflow:hidden;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        ">
+
+            <!-- Header -->
+            <div style="
+                background:#003566;
+                color:#ffffff;
+                padding:20px;
+                text-align:center;
+            ">
+                <h1 style="
+                    margin:0;
+                    font-size:26px;
+                    line-height:1.4;
+                ">
+                    {{ body.title }}
+                </h1>
             </div>
+
+            <!-- Content -->
+            <div style="padding:40px 30px; text-align:center;">
+
+                <h3 style="
+                    margin:0 0 20px;
+                    font-size:22px;
+                    color:#333333;
+                ">
+                    สวัสดี {{ body.name }} 👋
+                </h3>
+
+                <p style="
+                    margin:0 0 30px;
+                    font-size:16px;
+                    line-height:1.6;
+                    color:#555555;
+                ">
+                    {{ body.detail }}
+                </p>
+
+                <!-- Image -->
+                <img
+                    src="{{ body.img }}"
+                    alt="image"
+                    style="
+                        width:100%;
+                        max-width:320px;
+                        margin:20px auto;
+                        display:block;
+                        border-radius:12px;
+                        box-shadow:0 4px 10px rgba(0,0,0,0.15);
+                    "
+                />
+
+                <!-- Button -->
+                <a
+                    href="{{ body.img }}"
+                    target="_blank"
+                    style="
+                        display:inline-block;
+                        margin-top:30px;
+                        padding:14px 28px;
+                        font-size:18px;
+                        color:#ffffff;
+                        background:#2ecc71;
+                        border-radius:30px;
+                        text-decoration:none;
+                        font-weight:bold;
+                    "
+                >
+                    ดูตัวอย่างภาพ
+                </a>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="
+                background:#f7f7f7;
+                padding:15px;
+                text-align:center;
+                font-size:13px;
+                color:#888888;
+            ">
+                © 2026 Muteverse. All rights reserved.
+            </div>
+
         </div>
     </div>
-</body>
 
+</body>
 </html>

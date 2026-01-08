@@ -53,7 +53,7 @@ luck_num_maps = {
 }
 
 OrderSortField: TypeAlias = Literal[
-    "first_name_customer", "last_name_customer", "email", "payment_status", "created_at"
+    "first_name_customer", "last_name_customer", "email", "payment_status", "created_at","order_no"
 ]
 
 
@@ -77,6 +77,7 @@ def find_all(
                 Order.first_name_customer.ilike(search_term),
                 Order.last_name_customer.ilike(search_term),
                 Order.email.ilike(search_term),
+                 Order.order_no.ilike(search_term),
             )
         )       
     if sort_by:
@@ -120,6 +121,49 @@ def find_by_email(
             Order.first_name_customer.ilike(search_term),
             Order.last_name_customer.ilike(search_term),
             Order.email.ilike(search_term),
+        )
+    if sort_by:
+        sort_column = getattr(Order, sort_by)
+        if sort_order == "desc":
+            sort_column = sort_column.desc()
+        else:
+            sort_column = sort_column.asc()
+            query = query.order_by(sort_column)
+
+    data = query.offset(offset).limit(limit).all()
+
+    total = query.count()
+
+    return PaginatedResponse(
+        message="success",
+        data=data,
+        pagination=Pagination(page=page, limit=limit, total=total),
+    )
+
+def find_by_ordernumber(
+    db: Session,
+    *,
+    search: str | None = None,
+    sort_by: OrderSortField | None = "created_at",
+    sort_order: SortOrder | None = "desc",
+    order_no: str,
+    page: int = 0,
+    limit: int = 100,
+):
+    offset = (page - 1) * limit
+    query = (
+        db.query(Order)
+        .options(joinedload(Order.order_type))
+        .filter(Order.order_no == order_no)
+    )
+
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            Order.first_name_customer.ilike(search_term),
+            Order.last_name_customer.ilike(search_term),
+            Order.email.ilike(search_term),
+            Order.order_no.ilike(search_term),
         )
     if sort_by:
         sort_column = getattr(Order, sort_by)
@@ -307,6 +351,7 @@ def generate_payment_qr(db: Session, order_id: UUID):
 
     return OrderPromptPayQrDto(
         order_id=order_id,
+        order_no=order.order_no,
         amount=float(amount_decimal),
         promptpay_id=_digits_only(promptpay_id),
         promptpay_payload=payload,
