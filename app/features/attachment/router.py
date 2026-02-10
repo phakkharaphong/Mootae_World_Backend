@@ -175,8 +175,7 @@ def add_text_to_image(
 
     if "/uploads_wallpapers/" in parsed.path:
         filename = Path(parsed.path).name
-        local_path = UPLOAD_DIR / filename
-
+        local_path = UPLOAD_WALLPAPER_DIR / filename
         if not local_path.exists():
             raise HTTPException(404, "Image not found")
 
@@ -209,7 +208,7 @@ def add_text_to_image(
     file_path = UPLOAD_DIR / filename
     image.save(file_path, format="PNG")
 
-    file_url = f"{request.base_url}uploads_wallpapers/{filename}"
+    file_url = f"{request.base_url}uploads/{filename}"
 
     return {
         "message": "success",
