@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     UPLOAD_WALLPAPER_DIR: str = "uploads_wallpapers"
     
-    PROMPTPAY_ID: str = "0626265127"
+    PROMPTPAY_ID: str = "0956532989"
     PROMPTPAY_MERCHANT_NAME: str = "Muteverse"
     PROMPTPAY_MERCHANT_CITY: str = "Bangkok"
 

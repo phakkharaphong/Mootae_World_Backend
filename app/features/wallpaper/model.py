@@ -9,6 +9,7 @@ class Wallpaper(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     url = Column(String(100), index=True, unique=True, nullable=False)
+    original = Column(String(100),nullable=True)
 
     wallpaper_collection_id = Column(
         UUID(as_uuid=True),

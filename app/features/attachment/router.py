@@ -154,10 +154,12 @@ async def upload_wallpaper(request: Request, file: UploadFile = File(...)):
         f.write(watermarked)
 
     file_url = f"{request.base_url}uploads/{filename}"
+    file_url_original = f"{request.base_url}{original_path}"
 
     return {
         "filename": filename,
         "url": file_url,
+        "original": file_url_original
     }
 
 @router.post(
@@ -171,7 +173,7 @@ def add_text_to_image(
 ):
     parsed = urlparse(image_url)
 
-    if "/uploads/" in parsed.path:
+    if "/uploads_wallpapers/" in parsed.path:
         filename = Path(parsed.path).name
         local_path = UPLOAD_DIR / filename
 
@@ -207,7 +209,7 @@ def add_text_to_image(
     file_path = UPLOAD_DIR / filename
     image.save(file_path, format="PNG")
 
-    file_url = f"{request.base_url}uploads/{filename}"
+    file_url = f"{request.base_url}uploads_wallpapers/{filename}"
 
     return {
         "message": "success",

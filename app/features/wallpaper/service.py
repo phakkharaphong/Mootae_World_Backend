@@ -62,6 +62,7 @@ def create(db: Session, wallpaper: WallpaperCreateDto):
     new_wallpaper = Wallpaper(
         url=wallpaper.url,
         wallpaper_collection_id=wallpaper.wallpaper_collection_id,
+        original = wallpaper.original
     )
     db.add(new_wallpaper)
     db.commit()

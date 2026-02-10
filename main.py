@@ -58,6 +58,7 @@ app.add_middleware(
 )
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/uploads_wallpapers", StaticFiles(directory="uploads_wallpapers"), name="uploads_wallpapers")
 
 api_router = APIRouter(prefix="/api/v1")
 
