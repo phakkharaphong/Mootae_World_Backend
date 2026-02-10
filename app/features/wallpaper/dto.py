@@ -12,10 +12,6 @@ class WallpaperGetDto(BaseModel):
         description="Wallpaper URL",
         examples=["https://example.com/wallpaper1.jpg"],
     )
-    original: str | None = Field(
-        description="original file",
-        examples=["https://example.com/wallpaper1.jpg"]
-    )
 
     wallpaper_collection_id: UUID | None = Field(
         description="Wallpaper Collection ID",

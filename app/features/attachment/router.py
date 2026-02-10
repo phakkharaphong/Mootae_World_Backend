@@ -162,29 +162,24 @@ async def upload_wallpaper(request: Request, file: UploadFile = File(...)):
         "original": file_url_original
     }
 
-@router.post(
-    "/image/text",
-    description="Add Text to Image"
-)
+@router.post("/image/text", description="Add Text to Image")
 def add_text_to_image(
     request: Request,
     text: str,
     image_url: str,
 ):
     parsed = urlparse(image_url)
+    filename = Path(parsed.path).name
 
-    if "/uploads_wallpapers/" in parsed.path:
-        filename = Path(parsed.path).name
-        local_path = UPLOAD_WALLPAPER_DIR / filename
-        if not local_path.exists():
-            raise HTTPException(404, "Image not found")
 
-        image = Image.open(local_path).convert("RGBA")
-    else:
-        response = requests.get(image_url, timeout=10)
-        response.raise_for_status()
-        image = Image.open(io.BytesIO(response.content)).convert("RGBA")
+    original_path = UPLOAD_WALLPAPER_DIR / filename
 
+    if not original_path.exists():
+        raise HTTPException(status_code=404, detail="Original image not found")
+
+    image = Image.open(original_path).convert("RGBA")
+
+    # Resize
     new_size = (1024, 1536)
     image = image.resize(new_size, Image.Resampling.LANCZOS)
 
@@ -204,11 +199,12 @@ def add_text_to_image(
         stroke_fill="#5C4A00"
     )
 
-    filename = f"{uuid.uuid4()}.png"
-    file_path = UPLOAD_DIR / filename
-    image.save(file_path, format="PNG")
 
-    file_url = f"{request.base_url}uploads/{filename}"
+    new_filename = f"{uuid.uuid4()}.png"
+    save_path = UPLOAD_DIR / new_filename
+    image.save(save_path, format="PNG")
+
+    file_url = f"{request.base_url}uploads/{new_filename}"
 
     return {
         "message": "success",
